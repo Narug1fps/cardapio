@@ -1,45 +1,35 @@
 import { MenuHeader } from '@/components/MenuHeader'
 import { MenuCategory } from '@/components/MenuCategory'
-import type { Category, Dish } from '@/types/menu'
+import { getCategories, getDishes } from '@/services/menu'
 
-async function getCategories(): Promise<Category[]> {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/categories`, {
-      cache: 'no-store'
-    })
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.categories || []
-  } catch {
-    return []
-  }
-}
-
-async function getDishes(): Promise<Dish[]> {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/dishes`, {
-      cache: 'no-store'
-    })
-    if (!res.ok) return []
-    const data = await res.json()
-    return data.dishes || []
-  } catch {
-    return []
-  }
-}
+export const revalidate = 0 // Disable static caching for now
 
 export default async function HomePage() {
-  const [categories, dishes] = await Promise.all([
-    getCategories(),
-    getDishes()
-  ])
+  let categories = []
+  let dishes = []
+  let error = null
+
+  try {
+    [categories, dishes] = await Promise.all([
+      getCategories(),
+      getDishes()
+    ])
+  } catch (e) {
+    console.error('Failed to load menu data:', e)
+    error = 'Não foi possível carregar o cardápio. Por favor, tente novamente mais tarde.'
+  }
 
   return (
     <div className="min-h-screen">
       <MenuHeader restaurantName="Sabores & Aromas" />
 
       <main className="container mx-auto px-4 py-8">
-        {categories.length === 0 && dishes.length === 0 ? (
+        {error ? (
+          <div className="text-center py-20 bg-red-900/20 rounded-lg border border-red-500/20">
+            <h2 className="text-xl text-red-400 mb-2">Erro</h2>
+            <p className="text-zinc-400">{error}</p>
+          </div>
+        ) : categories.length === 0 && dishes.length === 0 ? (
           <div className="text-center py-20">
             <div className="text-6xl mb-6">🍽️</div>
             <h2 className="text-2xl font-bold text-white mb-4">
