@@ -1,0 +1,7 @@
+
+CWD: C:\Users\Vitor Daltro\Documents\catalogo
+Endpoint: https://nyc.cloud.appwrite.io/v1
+Project ID: 6949bb1d00119f3d6a6d
+API Key Present: true
+API Key Length: 265
+API Key First 3 Chars: sta

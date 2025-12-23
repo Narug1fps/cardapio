@@ -1,0 +1,302 @@
+'use client'
+
+import { useState, useEffect, use } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
+import { DishSchema, type CreateDishInput, type Category } from '@/types/menu'
+import { useAuth } from '@/contexts/AuthContext'
+import { AdminSidebar } from '@/components/admin/AdminSidebar'
+import { FiSave, FiArrowLeft } from 'react-icons/fi'
+import { FaUpload, FaSpinner } from 'react-icons/fa'
+import Image from 'next/image'
+
+
+export default function EditDishPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = use(params)
+    const router = useRouter()
+    const { user, loading } = useAuth()
+    const [categories, setCategories] = useState<Category[]>([])
+    const [imageFile, setImageFile] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null)
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+
+    const {
+        register,
+        handleSubmit,
+        setValue,
+        formState: { errors }
+    } = useForm<CreateDishInput>({
+        resolver: zodResolver(DishSchema)
+    })
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                const [categoriesRes, dishRes] = await Promise.all([
+                    fetch('/api/categories'),
+                    fetch(`/api/dishes/${id}`)
+                ])
+
+                const categoriesData = await categoriesRes.json()
+                const dishData = await dishRes.json()
+
+                if (dishData.error) throw new Error(dishData.error)
+
+                setCategories(categoriesData.categories)
+
+                const dish = dishData.dish
+                setValue('name', dish.name)
+                setValue('description', dish.description)
+                setValue('price', dish.price)
+                setValue('categoryId', dish.categoryId)
+                setValue('available', dish.available)
+
+                if (dish.imageId) {
+                    setCurrentImageUrl(dish.imageId) // It's a URL now
+                }
+            } catch (error) {
+                console.error(error)
+                router.push('/admin/dishes')
+            } finally {
+                setIsLoading(false)
+            }
+        }
+        loadData()
+    }, [id, router, setValue])
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setImageFile(file)
+            const url = URL.createObjectURL(file)
+            setImagePreview(url)
+        }
+    }
+
+    const onSubmit = async (data: CreateDishInput) => {
+        if (!user) return
+        setIsSubmitting(true)
+
+        try {
+            let imageUrl = currentImageUrl
+
+            if (imageFile) {
+                // Determine file path
+                const fileExt = imageFile.name.split('.').pop()
+                const fileName = `${Math.random()}.${fileExt}`
+                const filePath = `${fileName}`
+
+                // Upload new image
+                const { error: uploadError } = await supabase.storage
+                    .from('dish-images')
+                    .upload(filePath, imageFile)
+
+                if (uploadError) throw new Error('Failed to upload image')
+
+                // Get Public URL
+                const { data: { publicUrl } } = supabase.storage
+                    .from('dish-images')
+                    .getPublicUrl(filePath)
+
+                imageUrl = publicUrl
+            }
+
+            const res = await fetch(`/api/dishes/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...data,
+                    imageId: imageUrl
+                })
+            })
+
+            if (!res.ok) throw new Error('Failed to update dish')
+
+            router.push('/admin/dishes')
+        } catch (error) {
+            console.error(error)
+            alert('Failed to update dish')
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    if (loading || isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <FaSpinner className="w-8 h-8 animate-spin text-amber-500" />
+            </div>
+        )
+    }
+
+    if (!user) {
+        return null
+    }
+
+    return (
+        <div className="min-h-screen">
+            <AdminSidebar />
+
+            <main className="ml-64 p-8">
+                <div className="mb-8">
+                    <Link
+                        href="/admin"
+                        className="inline-flex items-center gap-2 text-zinc-400 hover:text-white mb-4"
+                    >
+                        <FiArrowLeft className="w-4 h-4" />
+                        Voltar
+                    </Link>
+                    <h1 className="text-3xl font-bold text-white">Editar Prato</h1>
+                </div>
+
+                <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl">
+                    <div className="card space-y-6">
+                        {/* Image Upload */}
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-300 mb-2">
+                                Imagem do Prato
+                            </label>
+                            <div className="flex items-start gap-4">
+                                <div className="w-32 h-32 rounded-lg bg-zinc-800 flex items-center justify-center overflow-hidden">
+                                    {imagePreview ? (
+                                        <img
+                                            src={imagePreview}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="text-4xl">🍽️</span>
+                                    )}
+                                </div>
+                                <label className="flex-1 flex flex-col items-center justify-center p-4 border-2 border-dashed border-zinc-700 rounded-lg cursor-pointer hover:border-zinc-500 transition-colors">
+                                    <div className="flex flex-col items-center gap-2 text-gray-400">
+                                        <FaUpload className="w-8 h-8" />
+                                        <span className="text-sm">Clique para alterar</span>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="hidden"
+                                    />
+                                </label>
+                            </div>
+                        </div>
+
+                        {/* Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-300 mb-2">
+                                Nome *
+                            </label>
+                            <input
+                                type="text"
+                                {...register('name')}
+                                className="w-full"
+                                placeholder="Ex: Filé Mignon ao Molho Madeira"
+                            />
+                            {errors.name && (
+                                <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
+                            )}
+                        </div>
+
+                        {/* Description */}
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-300 mb-2">
+                                Descrição *
+                            </label>
+                            <textarea
+                                {...register('description')}
+                                rows={3}
+                                className="w-full"
+                                placeholder="Descreva os ingredientes e preparo do prato"
+                            />
+                            {errors.description && (
+                                <p className="mt-1 text-sm text-red-400">{errors.description.message}</p>
+                            )}
+                        </div>
+
+                        {/* Price and Category */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                                    Preço (R$) *
+                                </label>
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    {...register('price')}
+                                    className="w-full"
+                                    placeholder="0,00"
+                                />
+                                {errors.price && (
+                                    <p className="mt-1 text-sm text-red-400">{errors.price.message}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                                    Categoria *
+                                </label>
+                                <select {...register('categoryId')} className="w-full">
+                                    <option value="">Selecione...</option>
+                                    {categories.map(category => (
+                                        <option key={category.$id} value={category.$id}>
+                                            {category.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.categoryId && (
+                                    <p className="mt-1 text-sm text-red-400">{errors.categoryId.message}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Available */}
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                {...register('available')}
+                                id="available"
+                                className="rounded border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500"
+                            />
+                            <label htmlFor="available" className="text-zinc-300">
+                                Prato disponível
+                            </label>
+                        </div>
+
+                        {/* Submit */}
+                        <div className="flex justify-end gap-4 pt-4 border-t border-zinc-800">
+                            <Link href="/admin" className="btn btn-secondary">
+                                Cancelar
+                            </Link>
+                            <button
+                                type="submit"
+                                disabled={isSubmitting}
+                                className="flex items-center gap-2 px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <FaSpinner className="w-5 h-5 animate-spin" />
+                                        Salvando...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FiSave className="w-5 h-5" />
+                                        Atualizar Prato
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </main>
+        </div>
+    )
+}
