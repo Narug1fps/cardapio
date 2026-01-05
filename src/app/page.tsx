@@ -1,68 +1,124 @@
-import { MenuHeader } from '@/components/MenuHeader'
-import { MenuCategory } from '@/components/MenuCategory'
-import { getCategories, getDishes } from '@/services/menu'
+'use client'
 
-export const revalidate = 0 // Disable static caching for now
+import { Suspense, useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { TableSelector } from '@/components/TableSelector'
+import { MenuThemeProvider, useMenuSettings } from '@/components/MenuThemeProvider'
+import { AdminLink } from '@/components/AdminLink'
+import { useCart } from '@/contexts/CartContext'
 
-export default async function HomePage() {
-  let categories = []
-  let dishes = []
-  let error = null
+function HomeContent() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { settings, loading: settingsLoading } = useMenuSettings()
+  const { setTableNumber } = useCart()
+  const [checkingTable, setCheckingTable] = useState(true)
 
-  try {
-    [categories, dishes] = await Promise.all([
-      getCategories(),
-      getDishes()
-    ])
-  } catch (e) {
-    console.error('Failed to load menu data:', e)
-    error = 'Não foi possível carregar o cardápio. Por favor, tente novamente mais tarde.'
+  useEffect(() => {
+    // Check if there's a table parameter from QR Code
+    const tableParam = searchParams.get('table')
+
+    if (tableParam) {
+      const parsedTable = parseInt(tableParam, 10)
+      if (!isNaN(parsedTable) && parsedTable > 0) {
+        // Auto-select table from QR Code using Context to ensure sync
+        console.log(`[HomePage] Definindo mesa ${parsedTable} via QR Code`)
+        setTableNumber(parsedTable)
+
+        router.push('/menu')
+        return
+      }
+    }
+
+    setCheckingTable(false)
+  }, [searchParams, router, setTableNumber])
+
+  if (settingsLoading || checkingTable) {
+    return (
+      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
+          <p className="text-zinc-400">Carregando...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen">
-      <MenuHeader restaurantName="Sabores & Aromas" />
-
-      <main className="container mx-auto px-4 py-8">
-        {error ? (
-          <div className="text-center py-20 bg-red-900/20 rounded-lg border border-red-500/20">
-            <h2 className="text-xl text-red-400 mb-2">Erro</h2>
-            <p className="text-zinc-400">{error}</p>
-          </div>
-        ) : categories.length === 0 && dishes.length === 0 ? (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-6">🍽️</div>
-            <h2 className="text-2xl font-bold text-white mb-4">
-              Cardápio em breve!
-            </h2>
-            <p className="text-zinc-400 mb-8">
-              Nosso cardápio está sendo preparado. Em breve você poderá ver todos os nossos deliciosos pratos.
-            </p>
-            <a
-              href="/admin"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-medium rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-300 shadow-lg shadow-amber-500/25"
-            >
-              Configurar Cardápio
-            </a>
-          </div>
-        ) : (
-          <>
-            {categories.map(category => (
-              <MenuCategory
-                key={category.$id}
-                category={category}
-                dishes={dishes}
-              />
-            ))}
-          </>
-        )}
-      </main>
-
-      <footer className="border-t border-zinc-800 py-8 mt-12">
-        <div className="container mx-auto px-4 text-center text-zinc-500 text-sm">
-          <p>© {new Date().getFullYear()} Sabores & Aromas. Todos os direitos reservados.</p>
+    <MenuThemeProvider initialSettings={settings}>
+      <div
+        className="min-h-screen"
+        style={{
+          backgroundColor: settings?.backgroundColor || '#09090b',
+          color: settings?.textColor || '#ffffff'
+        }}
+      >
+        <AdminLink />
+        {/* Decorative Background Elements */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none">
+          <div
+            className="absolute top-0 left-1/4 w-96 h-96 rounded-full blur-3xl opacity-5"
+            style={{ backgroundColor: settings?.primaryColor || '#f59e0b' }}
+          ></div>
+          <div
+            className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full blur-3xl opacity-5"
+            style={{ backgroundColor: settings?.secondaryColor || '#ea580c' }}
+          ></div>
         </div>
-      </footer>
+
+        {/* Logo Header */}
+        <header className="relative py-8 text-center">
+          {settings?.logoUrl ? (
+            <img
+              src={settings.logoUrl}
+              alt={settings.restaurantName}
+              className="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-white/10 shadow-xl"
+            />
+          ) : (
+            <div className="text-5xl mb-4">🍽️</div>
+          )}
+
+          <h1
+            className="text-3xl md:text-4xl font-bold px-4 bg-clip-text text-transparent"
+            style={{
+              backgroundImage: `linear-gradient(to right, ${settings?.primaryColor || '#fbbf24'}, ${settings?.secondaryColor || '#f97316'})`
+            }}
+          >
+            {settings?.restaurantName || 'Sabores & Aromas'}
+          </h1>
+          {settings?.welcomeMessage && (
+            <p className="mt-2 max-w-md mx-auto opacity-60 px-4">
+              {settings.welcomeMessage}
+            </p>
+          )}
+        </header>
+
+        {/* Table Selector */}
+        <TableSelector
+          redirectTo="/menu"
+          primaryColor={settings?.primaryColor}
+          secondaryColor={settings?.secondaryColor}
+        />
+      </div>
+    </MenuThemeProvider>
+  )
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
+        <p className="text-zinc-400">Carregando...</p>
+      </div>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <HomeContent />
+    </Suspense>
   )
 }

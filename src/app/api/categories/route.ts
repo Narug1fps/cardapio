@@ -2,21 +2,25 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServiceSupabase } from '@/lib/supabase'
 import type { CreateCategoryInput } from '@/types/menu'
 
+export const dynamic = 'force-dynamic' // Desativa cache do Next.js
+
 export async function GET() {
     try {
+        console.log('[API] Buscando categorias...')
         const supabase = getServiceSupabase()
 
-        // "order" column needs to be mapped or just fetched.
-        // select * returns it as "order".
-        // ordering by "order" column.
         const { data: categories, error, count } = await supabase
             .from('categories')
             .select('*', { count: 'exact' })
             .order('order', { ascending: true })
 
         if (error) {
+            console.error('[API] Erro Supabase:', error)
             throw error
         }
+
+        console.log(`[API] Sucesso! Encontradas ${categories?.length || 0} categorias.`)
+        // console.log('[API] Dados:', JSON.stringify(categories, null, 2))
 
         const mappedCategories = categories?.map(c => ({
             ...c,
@@ -24,12 +28,9 @@ export async function GET() {
             $createdAt: c.created_at
         }))
 
-        return NextResponse.json({
-            categories: mappedCategories || [],
-            total: count
-        })
+        return NextResponse.json(mappedCategories || [])
     } catch (error) {
-        console.error('Error fetching categories:', error)
+        console.error('[API] Erro fetching categories:', error)
         return NextResponse.json(
             { error: 'Failed to fetch categories' },
             { status: 500 }

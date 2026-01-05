@@ -38,10 +38,7 @@ export async function GET(request: NextRequest) {
             available: dish.available
         }))
 
-        return NextResponse.json({
-            dishes: mappedDishes || [],
-            total: count
-        })
+        return NextResponse.json(mappedDishes || [])
     } catch (error) {
         console.error('Error fetching dishes:', error)
         return NextResponse.json(

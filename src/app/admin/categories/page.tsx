@@ -8,7 +8,6 @@ import { z } from 'zod'
 import { FiPlus, FiEdit2, FiTrash2, FiX, FiCheck } from 'react-icons/fi'
 import { FaSpinner } from 'react-icons/fa'
 import { useAuth } from '@/contexts/AuthContext'
-import { AdminSidebar } from '@/components/admin/AdminSidebar'
 import type { Category } from '@/types/menu'
 
 const categorySchema = z.object({
@@ -48,7 +47,9 @@ export default function CategoriesPage() {
                 const res = await fetch('/api/categories')
                 if (res.ok) {
                     const data = await res.json()
-                    setCategories(data.categories || [])
+                    // API retorna um array direto agora, mas mantemos compatibilidade
+                    const categoriesList = Array.isArray(data) ? data : (data.categories || [])
+                    setCategories(categoriesList)
                 }
             } catch (error) {
                 console.error('Error fetching categories:', error)
@@ -136,7 +137,7 @@ export default function CategoriesPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="flex items-center justify-center h-64">
                 <FaSpinner className="w-8 h-8 animate-spin text-amber-500" />
             </div>
         )
@@ -147,140 +148,136 @@ export default function CategoriesPage() {
     }
 
     return (
-        <div className="min-h-screen">
-            <AdminSidebar />
-
-            <main className="ml-64 p-8">
-                <div className="flex items-center justify-between mb-8">
-                    <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">Categorias</h1>
-                        <p className="text-zinc-400">Gerencie as categorias do cardápio</p>
-                    </div>
-                    <button onClick={openNewForm} className="btn btn-primary">
-                        <FiPlus className="w-4 h-4" />
-                        Nova Categoria
-                    </button>
+        <div className="w-full">
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                    <h1 className="text-3xl font-bold text-white mb-2">Categorias</h1>
+                    <p className="text-zinc-400">Gerencie as categorias do cardápio</p>
                 </div>
+                <button onClick={openNewForm} className="btn btn-primary">
+                    <FiPlus className="w-4 h-4" />
+                    Nova Categoria
+                </button>
+            </div>
 
-                {/* Form Modal */}
-                {showForm && (
-                    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                        <div className="card w-full max-w-md animate-fade-in">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-xl font-bold text-white">
-                                    {editingId ? 'Editar Categoria' : 'Nova Categoria'}
-                                </h2>
-                                <button
-                                    onClick={closeForm}
-                                    className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
-                                >
-                                    <FiX className="w-5 h-5" />
-                                </button>
-                            </div>
-
-                            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-zinc-300 mb-2">
-                                        Nome *
-                                    </label>
-                                    <input
-                                        type="text"
-                                        {...register('name')}
-                                        className="w-full"
-                                        placeholder="Ex: Entradas"
-                                    />
-                                    {errors.name && (
-                                        <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
-                                    )}
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-zinc-300 mb-2">
-                                        Descrição
-                                    </label>
-                                    <textarea
-                                        {...register('description')}
-                                        rows={2}
-                                        className="w-full"
-                                        placeholder="Descrição opcional"
-                                    />
-                                </div>
-
-                                <div className="flex justify-end gap-3 pt-4">
-                                    <button type="button" onClick={closeForm} className="btn btn-secondary">
-                                        Cancelar
-                                    </button>
-                                    <button type="submit" disabled={isSubmitting} className="btn btn-primary">
-                                        {isSubmitting ? (
-                                            <>
-                                                <FaSpinner className="w-4 h-4 animate-spin" />
-                                                Salvando...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <FiCheck className="w-4 h-4" />
-                                                Salvar
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                )}
-
-                {/* Categories List */}
-                <div className="card">
-                    {loadingData ? (
-                        <div className="flex items-center justify-center py-12">
-                            <FaSpinner className="w-6 h-6 animate-spin text-amber-500" />
-                        </div>
-                    ) : categories.length === 0 ? (
-                        <div className="text-center py-12">
-                            <p className="text-zinc-400 mb-4">Nenhuma categoria cadastrada</p>
-                            <button onClick={openNewForm} className="btn btn-primary">
-                                <FiPlus className="w-4 h-4" />
-                                Adicionar Primeira Categoria
+            {/* Form Modal */}
+            {showForm && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="card w-full max-w-md animate-fade-in">
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-white">
+                                {editingId ? 'Editar Categoria' : 'Nova Categoria'}
+                            </h2>
+                            <button
+                                onClick={closeForm}
+                                className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
+                            >
+                                <FiX className="w-5 h-5" />
                             </button>
                         </div>
-                    ) : (
-                        <div className="space-y-2">
-                            {categories.map((category, index) => (
-                                <div
-                                    key={category.$id}
-                                    className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 transition-colors"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-sm font-medium">
-                                            {index + 1}
-                                        </span>
-                                        <div>
-                                            <h3 className="text-white font-medium">{category.name}</h3>
-                                            {category.description && (
-                                                <p className="text-zinc-400 text-sm">{category.description}</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => openEditForm(category)}
-                                            className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
-                                        >
-                                            <FiEdit2 className="w-4 h-4" />
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(category.$id)}
-                                            className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                                        >
-                                            <FiTrash2 className="w-4 h-4" />
-                                        </button>
+
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                                    Nome *
+                                </label>
+                                <input
+                                    type="text"
+                                    {...register('name')}
+                                    className="w-full"
+                                    placeholder="Ex: Entradas"
+                                />
+                                {errors.name && (
+                                    <p className="mt-1 text-sm text-red-400">{errors.name.message}</p>
+                                )}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-300 mb-2">
+                                    Descrição
+                                </label>
+                                <textarea
+                                    {...register('description')}
+                                    rows={2}
+                                    className="w-full"
+                                    placeholder="Descrição opcional"
+                                />
+                            </div>
+
+                            <div className="flex justify-end gap-3 pt-4">
+                                <button type="button" onClick={closeForm} className="btn btn-secondary">
+                                    Cancelar
+                                </button>
+                                <button type="submit" disabled={isSubmitting} className="btn btn-primary">
+                                    {isSubmitting ? (
+                                        <>
+                                            <FaSpinner className="w-4 h-4 animate-spin" />
+                                            Salvando...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FiCheck className="w-4 h-4" />
+                                            Salvar
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Categories List */}
+            <div className="card w-full">
+                {loadingData ? (
+                    <div className="flex items-center justify-center py-12">
+                        <FaSpinner className="w-6 h-6 animate-spin text-amber-500" />
+                    </div>
+                ) : categories.length === 0 ? (
+                    <div className="text-center py-12">
+                        <p className="text-zinc-400 mb-4">Nenhuma categoria cadastrada</p>
+                        <button onClick={openNewForm} className="btn btn-primary">
+                            <FiPlus className="w-4 h-4" />
+                            Adicionar Primeira Categoria
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-2">
+                        {categories.map((category, index) => (
+                            <div
+                                key={category.$id}
+                                className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 transition-colors"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-sm font-medium">
+                                        {index + 1}
+                                    </span>
+                                    <div>
+                                        <h3 className="text-white font-medium">{category.name}</h3>
+                                        {category.description && (
+                                            <p className="text-zinc-400 text-sm">{category.description}</p>
+                                        )}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </main>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => openEditForm(category)}
+                                        className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
+                                    >
+                                        <FiEdit2 className="w-4 h-4" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(category.$id)}
+                                        className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                    >
+                                        <FiTrash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
         </div>
     )
 }

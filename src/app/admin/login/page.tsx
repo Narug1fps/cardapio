@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { FiMail, FiLock, FiLogIn, FiLoader } from 'react-icons/fi'
-import { useAuth } from '@/contexts/AuthContext'
+import { supabase } from '@/lib/supabase'
 
 const loginSchema = z.object({
     email: z.string().email('Email inválido'),
@@ -17,9 +17,26 @@ type LoginForm = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
     const router = useRouter()
-    const { login } = useAuth()
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
+    const [checkingAuth, setCheckingAuth] = useState(true)
+
+    useEffect(() => {
+        // Check if already logged in
+        const checkAuth = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    router.push('/admin')
+                }
+            } catch {
+                // Not logged in
+            } finally {
+                setCheckingAuth(false)
+            }
+        }
+        checkAuth()
+    }, [router])
 
     const {
         register,
@@ -34,27 +51,43 @@ export default function LoginPage() {
         setIsLoading(true)
 
         try {
-            await login(data.email, data.password)
+            const { error: authError } = await supabase.auth.signInWithPassword({
+                email: data.email,
+                password: data.password,
+            })
+
+            if (authError) {
+                throw authError
+            }
+
             router.push('/admin')
-        } catch {
-            setError('Email ou senha inválidos')
+        } catch (err: any) {
+            setError(err.message || 'Email ou senha inválidos')
         } finally {
             setIsLoading(false)
         }
     }
 
+    if (checkingAuth) {
+        return (
+            <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+            </div>
+        )
+    }
+
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-4">
-                        <span className="text-white font-bold text-2xl">S</span>
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/30">
+                        <span className="text-white font-bold text-2xl">🍽️</span>
                     </div>
                     <h1 className="text-3xl font-bold text-white mb-2">Admin Login</h1>
                     <p className="text-zinc-400">Entre para gerenciar o cardápio</p>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="card space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 space-y-6">
                     {error && (
                         <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
                             {error}
@@ -70,7 +103,7 @@ export default function LoginPage() {
                             <input
                                 type="email"
                                 {...register('email')}
-                                className="w-full pl-10 pr-4 py-3"
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500"
                                 placeholder="admin@restaurante.com"
                             />
                         </div>
@@ -88,7 +121,7 @@ export default function LoginPage() {
                             <input
                                 type="password"
                                 {...register('password')}
-                                className="w-full pl-10 pr-4 py-3"
+                                className="w-full pl-10 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -100,7 +133,7 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="btn btn-primary w-full py-3"
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50"
                     >
                         {isLoading ? (
                             <>
