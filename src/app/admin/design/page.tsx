@@ -182,10 +182,12 @@ export default function AdminDesignPage() {
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${saved
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700'
-                        }`}
+                    className="flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all text-white"
+                    style={{
+                        background: saved
+                            ? '#10b981' // emerald-500
+                            : `linear-gradient(to right, ${settings.primaryColor || '#f59e0b'}, ${settings.secondaryColor || '#ea580c'})`
+                    }}
                 >
                     {saving ? <FiRefreshCw className="w-5 h-5 animate-spin" /> : saved ? <FiCheck className="w-5 h-5" /> : <FiSave className="w-5 h-5" />}
                     {saving ? 'Salvando...' : saved ? 'Salvo!' : 'Salvar Alterações'}
@@ -198,7 +200,10 @@ export default function AdminDesignPage() {
                     {/* Basic Info */}
                     <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                            <FiType className="w-5 h-5 text-amber-400" />
+                            <FiType
+                                className="w-5 h-5"
+                                style={{ color: settings.primaryColor || '#f59e0b' }}
+                            />
                             Informações Básicas
                         </h2>
 
@@ -211,7 +216,8 @@ export default function AdminDesignPage() {
                                     type="text"
                                     value={settings.restaurantName}
                                     onChange={(e) => updateSetting('restaurantName', e.target.value)}
-                                    className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none focus:border-amber-500"
+                                    className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none"
+                                    style={{ borderColor: settings.primaryColor || '#f59e0b' }}
                                 />
                             </div>
 
@@ -246,7 +252,10 @@ export default function AdminDesignPage() {
                     {/* Theme Colors - New Section */}
                     <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                            <FiDroplet className="w-5 h-5 text-amber-400" />
+                            <FiDroplet
+                                className="w-5 h-5"
+                                style={{ color: settings.primaryColor || '#f59e0b' }}
+                            />
                             Cores do Tema
                         </h2>
                         <div className="grid grid-cols-2 gap-4">
@@ -260,7 +269,10 @@ export default function AdminDesignPage() {
                     {/* Card Customization */}
                     <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                            <FiLayout className="w-5 h-5 text-amber-400" />
+                            <FiLayout
+                                className="w-5 h-5"
+                                style={{ color: settings.primaryColor || '#f59e0b' }}
+                            />
                             Estilo dos Cards
                         </h2>
 
@@ -307,7 +319,10 @@ export default function AdminDesignPage() {
                     {/* Font Settings */}
                     <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                            <FiType className="w-5 h-5 text-amber-400" />
+                            <FiType
+                                className="w-5 h-5"
+                                style={{ color: settings.primaryColor || '#f59e0b' }}
+                            />
                             Tipografia
                         </h2>
 
@@ -330,7 +345,10 @@ export default function AdminDesignPage() {
                     {/* Color Presets */}
                     <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                            <FiDroplet className="w-5 h-5 text-amber-400" />
+                            <FiDroplet
+                                className="w-5 h-5"
+                                style={{ color: settings.primaryColor || '#f59e0b' }}
+                            />
                             Temas Prontos
                         </h2>
 
@@ -359,7 +377,10 @@ export default function AdminDesignPage() {
                 <div className="lg:sticky lg:top-8 h-fit">
                     <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
                         <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                            <FiEye className="w-5 h-5 text-amber-400" />
+                            <FiEye
+                                className="w-5 h-5"
+                                style={{ color: settings.primaryColor || '#f59e0b' }}
+                            />
                             Preview do Cardápio
                         </h2>
 

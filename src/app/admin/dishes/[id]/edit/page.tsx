@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { DishSchema, type CreateDishInput, type Category } from '@/types/menu'
 import { useAuth } from '@/contexts/AuthContext'
+import { useMenuSettings } from '@/components/MenuThemeProvider'
 
 import { FiSave, FiArrowLeft } from 'react-icons/fi'
 import { FaUpload, FaSpinner } from 'react-icons/fa'
@@ -15,6 +16,7 @@ import Image from 'next/image'
 
 
 export default function EditDishPage({ params }: { params: Promise<{ id: string }> }) {
+    const { settings } = useMenuSettings()
     const { id } = use(params)
     const router = useRouter()
     const { user, loading } = useAuth()
@@ -130,7 +132,10 @@ export default function EditDishPage({ params }: { params: Promise<{ id: string 
     if (loading || isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <FaSpinner className="w-8 h-8 animate-spin" style={{ color: 'var(--menu-primary, #f59e0b)' }} />
+                <FaSpinner
+                    className="w-8 h-8 animate-spin"
+                    style={{ color: settings?.primaryColor || '#f59e0b' }}
+                />
             </div>
         )
     }
@@ -198,8 +203,8 @@ export default function EditDishPage({ params }: { params: Promise<{ id: string 
                             className="w-full rounded-lg border p-3 bg-transparent transition-colors focus:ring-2 focus:ring-opacity-50"
                             style={{
                                 borderColor: 'rgba(255,255,255,0.1)',
-                                color: 'var(--menu-text, #fff)',
-                                outlineColor: 'var(--menu-primary, #f59e0b)'
+                                color: settings?.textColor || '#fff',
+                                outlineColor: settings?.primaryColor || '#f59e0b'
                             }}
                             placeholder="Ex: Filé Mignon ao Molho Madeira"
                         />
@@ -219,8 +224,8 @@ export default function EditDishPage({ params }: { params: Promise<{ id: string 
                             className="w-full rounded-lg border p-3 bg-transparent transition-colors focus:ring-2 focus:ring-opacity-50"
                             style={{
                                 borderColor: 'rgba(255,255,255,0.1)',
-                                color: 'var(--menu-text, #fff)',
-                                outlineColor: 'var(--menu-primary, #f59e0b)'
+                                color: settings?.textColor || '#fff',
+                                outlineColor: settings?.primaryColor || '#f59e0b'
                             }}
                             placeholder="Descreva os ingredientes e preparo do prato"
                         />
@@ -284,9 +289,13 @@ export default function EditDishPage({ params }: { params: Promise<{ id: string 
                             type="checkbox"
                             {...register('available')}
                             id="available"
-                            className="rounded border-zinc-600 bg-zinc-800 text-amber-500 focus:ring-amber-500"
+                            className="rounded bg-transparent focus:ring-offset-0 focus:ring-2"
+                            style={{
+                                borderColor: 'rgba(255,255,255,0.3)',
+                                color: settings?.primaryColor || '#f59e0b',
+                            }}
                         />
-                        <label htmlFor="available" className="text-zinc-300">
+                        <label htmlFor="available" style={{ color: 'var(--menu-text, #fff)', opacity: 0.8 }}>
                             Prato disponível
                         </label>
                     </div>
@@ -299,7 +308,11 @@ export default function EditDishPage({ params }: { params: Promise<{ id: string 
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="flex items-center gap-2 px-6 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex items-center gap-2 px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                                background: `linear-gradient(to right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`,
+                                color: '#fff'
+                            }}
                         >
                             {isSubmitting ? (
                                 <>

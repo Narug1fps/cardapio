@@ -53,9 +53,9 @@ export default function CustomerOrdersPage() {
                 const allOrders = await response.json()
                 const savedTable = localStorage.getItem('tableNumber')
                 if (savedTable) {
-                    // Filter orders for current table
+                    // Filter orders for current table AND check if NOT paid
                     const tableOrders = allOrders.filter(
-                        (o: Order) => o.tableNumber === parseInt(savedTable, 10)
+                        (o: Order) => o.tableNumber === parseInt(savedTable, 10) && !o.paid
                     )
                     // Sort: My orders first, then by date desc
                     tableOrders.sort((a: Order, b: Order) => {

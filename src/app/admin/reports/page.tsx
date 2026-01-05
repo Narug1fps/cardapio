@@ -11,9 +11,11 @@ import {
     FiPieChart,
     FiX
 } from 'react-icons/fi'
+import { useMenuSettings } from '@/components/MenuThemeProvider'
 import type { DailyReport } from '@/types/orders'
 
 export default function AdminReportsPage() {
+    const { settings } = useMenuSettings()
     const [reports, setReports] = useState<DailyReport[]>([])
     const [loading, setLoading] = useState(true)
     const [dateRange, setDateRange] = useState({
@@ -126,9 +128,12 @@ export default function AdminReportsPage() {
                                 key={option.value}
                                 onClick={() => setQuickDateRange(option.value)}
                                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${quickRange === option.value
-                                        ? 'bg-amber-500 text-white'
-                                        : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
+                                    ? 'text-white'
+                                    : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
                                     }`}
+                                style={quickRange === option.value ? {
+                                    backgroundColor: settings?.primaryColor || '#f59e0b'
+                                } : {}}
                             >
                                 {option.label}
                             </button>
@@ -158,30 +163,66 @@ export default function AdminReportsPage() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl border border-emerald-500/20 p-6">
+                <div
+                    className="rounded-2xl border p-6"
+                    style={{
+                        background: `linear-gradient(135deg, ${settings?.secondaryColor || '#ea580c'}15, ${settings?.primaryColor || '#f59e0b'}05)`,
+                        borderColor: `${settings?.secondaryColor || '#ea580c'}33`
+                    }}
+                >
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-3 bg-emerald-500/20 rounded-xl">
-                            <FiDollarSign className="w-6 h-6 text-emerald-400" />
+                        <div
+                            className="p-3 rounded-xl"
+                            style={{ backgroundColor: `${settings?.secondaryColor || '#ea580c'}33` }}
+                        >
+                            <FiDollarSign
+                                className="w-6 h-6"
+                                style={{ color: settings?.secondaryColor || '#ea580c' }}
+                            />
                         </div>
                         <span className="text-zinc-400 text-sm">Faturamento Total</span>
                     </div>
                     <p className="text-3xl font-bold text-white">{formatPrice(totalRevenue)}</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-2xl border border-blue-500/20 p-6">
+                <div
+                    className="rounded-2xl border p-6"
+                    style={{
+                        background: `linear-gradient(135deg, ${settings?.primaryColor || '#f59e0b'}15, ${settings?.secondaryColor || '#ea580c'}05)`,
+                        borderColor: `${settings?.primaryColor || '#f59e0b'}33`
+                    }}
+                >
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-3 bg-blue-500/20 rounded-xl">
-                            <FiShoppingBag className="w-6 h-6 text-blue-400" />
+                        <div
+                            className="p-3 rounded-xl"
+                            style={{ backgroundColor: `${settings?.primaryColor || '#f59e0b'}33` }}
+                        >
+                            <FiShoppingBag
+                                className="w-6 h-6"
+                                style={{ color: settings?.primaryColor || '#f59e0b' }}
+                            />
                         </div>
                         <span className="text-zinc-400 text-sm">Total de Pedidos</span>
                     </div>
                     <p className="text-3xl font-bold text-white">{totalOrders}</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/20 p-6">
+                <div
+                    className="rounded-2xl border p-6"
+                    style={{
+                        background: `linear-gradient(135deg, ${settings?.primaryColor || '#f59e0b'}15, ${settings?.secondaryColor || '#ea580c'}15)`,
+                        borderColor: `${settings?.primaryColor || '#f59e0b'}33`
+                    }}
+                >
                     <div className="flex items-center gap-3 mb-4">
-                        <div className="p-3 bg-amber-500/20 rounded-xl">
-                            <FiBarChart2 className="w-6 h-6 text-amber-400" />
+                        <div
+                            className="p-3 rounded-xl"
+                            style={{ backgroundColor: `${settings?.primaryColor || '#f59e0b'}33` }}
+                        >
+                            <FiBarChart2
+                                className="w-6 h-6"
+                                style={{ color: settings?.primaryColor || '#f59e0b' }}
+                            />
                         </div>
                         <span className="text-zinc-400 text-sm">Ticket Médio</span>
                     </div>
@@ -261,7 +302,10 @@ export default function AdminReportsPage() {
 
                 {loading ? (
                     <div className="h-64 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>
+                        <div
+                            className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2"
+                            style={{ borderColor: settings?.primaryColor || '#f59e0b' }}
+                        ></div>
                     </div>
                 ) : reports.length === 0 ? (
                     <div className="h-64 flex items-center justify-center text-zinc-500">
@@ -287,8 +331,12 @@ export default function AdminReportsPage() {
                                         </div>
                                         {/* Bar */}
                                         <div
-                                            className="w-full bg-gradient-to-t from-amber-600 to-amber-400 rounded-t-md transition-all duration-300 hover:from-amber-500 hover:to-amber-300"
-                                            style={{ height: `${Math.max(height, 4)}%`, minHeight: '8px' }}
+                                            className="w-full rounded-t-md transition-all duration-300"
+                                            style={{
+                                                height: `${Math.max(height, 4)}%`,
+                                                minHeight: '8px',
+                                                background: `linear-gradient(to top, ${settings?.primaryColor || '#d97706'}, ${settings?.secondaryColor || '#fbbf24'})`
+                                            }}
                                         />
                                     </div>
                                     <span className="text-zinc-600 text-xs hidden md:block">

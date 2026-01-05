@@ -14,7 +14,11 @@ import Image from 'next/image'
 
 
 
+
+import { useMenuSettings } from '@/components/MenuThemeProvider'
+
 export default function NewDishPage() {
+    const { settings } = useMenuSettings()
     const router = useRouter()
     const { user, loading } = useAuth()
     const [categories, setCategories] = useState<Category[]>([])
@@ -122,7 +126,10 @@ export default function NewDishPage() {
     if (loading || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <FaSpinner className="w-8 h-8 animate-spin" style={{ color: 'var(--menu-primary, #f59e0b)' }} />
+                <FaSpinner
+                    className="w-8 h-8 animate-spin"
+                    style={{ color: settings?.primaryColor || '#f59e0b' }}
+                />
             </div>
         )
     }
@@ -186,8 +193,8 @@ export default function NewDishPage() {
                             className="w-full rounded-lg border p-3 bg-transparent transition-colors focus:ring-2 focus:ring-opacity-50"
                             style={{
                                 borderColor: 'rgba(255,255,255,0.1)',
-                                color: 'var(--menu-text, #fff)',
-                                outlineColor: 'var(--menu-primary, #f59e0b)'
+                                color: settings?.textColor || '#fff',
+                                outlineColor: settings?.primaryColor || '#f59e0b'
                             }}
                             placeholder="Ex: Filé Mignon ao Molho Madeira"
                         />
@@ -207,8 +214,8 @@ export default function NewDishPage() {
                             className="w-full rounded-lg border p-3 bg-transparent transition-colors focus:ring-2 focus:ring-opacity-50"
                             style={{
                                 borderColor: 'rgba(255,255,255,0.1)',
-                                color: 'var(--menu-text, #fff)',
-                                outlineColor: 'var(--menu-primary, #f59e0b)'
+                                color: settings?.textColor || '#fff',
+                                outlineColor: settings?.primaryColor || '#f59e0b'
                             }}
                             placeholder="Descreva os ingredientes e preparo do prato"
                         />
@@ -275,7 +282,7 @@ export default function NewDishPage() {
                             className="rounded bg-transparent focus:ring-offset-0 focus:ring-2"
                             style={{
                                 borderColor: 'rgba(255,255,255,0.3)',
-                                color: 'var(--menu-primary, #f59e0b)',
+                                color: settings?.primaryColor || '#f59e0b',
                             }}
                         />
                         <label htmlFor="available" style={{ color: 'var(--menu-text, #fff)', opacity: 0.8 }}>
@@ -296,7 +303,10 @@ export default function NewDishPage() {
                             type="submit"
                             disabled={isSubmitting}
                             className="flex items-center gap-2 px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            style={{ backgroundColor: 'var(--menu-primary, #f59e0b)', color: '#fff' }}
+                            style={{
+                                background: `linear-gradient(to right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`,
+                                color: '#fff'
+                            }}
                         >
                             {isSubmitting ? (
                                 <>

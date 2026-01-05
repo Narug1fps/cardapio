@@ -17,7 +17,10 @@ const categorySchema = z.object({
 
 type CategoryForm = z.infer<typeof categorySchema>
 
+import { useMenuSettings } from '@/components/MenuThemeProvider'
+
 export default function CategoriesPage() {
+    const { settings } = useMenuSettings()
     const router = useRouter()
     const { user, loading } = useAuth()
     const [categories, setCategories] = useState<Category[]>([])
@@ -231,7 +234,10 @@ export default function CategoriesPage() {
             <div className="card w-full">
                 {loadingData ? (
                     <div className="flex items-center justify-center py-12">
-                        <FaSpinner className="w-6 h-6 animate-spin text-amber-500" />
+                        <FaSpinner
+                            className="w-6 h-6 animate-spin"
+                            style={{ color: settings?.primaryColor || '#f59e0b' }}
+                        />
                     </div>
                 ) : categories.length === 0 ? (
                     <div className="text-center py-12">
@@ -249,7 +255,13 @@ export default function CategoriesPage() {
                                 className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 transition-colors"
                             >
                                 <div className="flex items-center gap-4">
-                                    <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center text-sm font-medium">
+                                    <span
+                                        className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium"
+                                        style={{
+                                            backgroundColor: `${settings?.primaryColor || '#f59e0b'}33`, // 20% opacity approx
+                                            color: settings?.primaryColor || '#f59e0b'
+                                        }}
+                                    >
                                         {index + 1}
                                     </span>
                                     <div>

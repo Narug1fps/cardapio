@@ -121,7 +121,11 @@ export async function getOrders(status?: string): Promise<Order[]> {
         .order('created_at', { ascending: false })
 
     if (status && status !== 'all') {
-        query = query.eq('status', status)
+        if (status === 'unpaid') {
+            query = query.eq('paid', false).neq('status', 'cancelled')
+        } else {
+            query = query.eq('status', status)
+        }
     }
 
     const { data, error } = await query
@@ -140,6 +144,7 @@ export async function getOrders(status?: string): Promise<Order[]> {
         completedAt: o.completed_at,
         createdAt: o.created_at,
         updatedAt: o.updated_at,
+        paid: o.paid,
         items: o.order_items?.map((item: any) => ({
             id: item.id,
             orderId: item.order_id,
@@ -179,6 +184,7 @@ export async function getOrderById(id: string): Promise<Order | null> {
         completedAt: data.completed_at,
         createdAt: data.created_at,
         updatedAt: data.updated_at,
+        paid: data.paid,
         items: data.order_items?.map((item: any) => ({
             id: item.id,
             orderId: item.order_id,
@@ -219,7 +225,8 @@ export async function getOrdersByTable(tableNumber: number): Promise<Order[]> {
             order_items (*)
         `)
         .eq('table_number', tableNumber)
-        .not('status', 'in', '("delivered","cancelled")')
+        .eq('paid', false)
+        .neq('status', 'cancelled')
         .order('created_at', { ascending: false })
 
     if (error) throw error
@@ -248,6 +255,20 @@ export async function getOrdersByTable(tableNumber: number): Promise<Order[]> {
             createdAt: item.created_at
         }))
     }))
+}
+
+export async function finalizeTable(tableNumber: number): Promise<void> {
+    const supabase = getServiceSupabase()
+
+    // Update all non-cancelled orders for this table to paid
+    const { error } = await supabase
+        .from('orders')
+        .update({ paid: true })
+        .eq('table_number', tableNumber)
+        .neq('status', 'cancelled')
+        .eq('paid', false)
+
+    if (error) throw error
 }
 
 // ==================== MENU SETTINGS ====================
@@ -353,9 +374,9 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
     if (callsError) throw callsError
 
-    // Calculate today's revenue (excluding cancelled orders)
+    // Calculate today's revenue (only paid orders)
     const todayRevenue = todayOrders
-        .filter(o => o.status !== 'cancelled')
+        .filter(o => o.paid === true)
         .reduce((sum, o) => sum + Number(o.total), 0)
 
     // Get most ordered dishes today
@@ -422,7 +443,9 @@ export async function getReportsByDateRange(startDate: string, endDate: string):
             reportsByDate[date].cancelledOrders++
         } else {
             reportsByDate[date].totalOrders++
-            reportsByDate[date].totalRevenue += Number(order.total)
+            if (order.paid) {
+                reportsByDate[date].totalRevenue += Number(order.total)
+            }
         }
     })
 

@@ -39,11 +39,17 @@ const statusBgColors: Record<OrderStatus, string> = {
     cancelled: 'border-l-red-500'
 }
 
+import { useMenuSettings } from '@/components/MenuThemeProvider'
+import { playNotificationSound } from '@/utils/sound'
+import { useRef } from 'react'
+
 export default function AdminOrdersPage() {
+    const { settings } = useMenuSettings()
     const [orders, setOrders] = useState<Order[]>([])
     const [loading, setLoading] = useState(true)
     const [filter, setFilter] = useState<string>('all')
     const [updatingOrders, setUpdatingOrders] = useState<Set<string>>(new Set())
+    const prevPendingCountRef = useRef(0)
 
     const fetchOrders = useCallback(async () => {
         try {
@@ -58,6 +64,15 @@ export default function AdminOrdersPage() {
             setLoading(false)
         }
     }, [filter])
+
+    // Play sound on new pending orders
+    useEffect(() => {
+        const pendingCount = orders.filter(o => o.status === 'pending').length
+        if (pendingCount > prevPendingCountRef.current) {
+            playNotificationSound()
+        }
+        prevPendingCountRef.current = pendingCount
+    }, [orders])
 
     useEffect(() => {
         fetchOrders()
@@ -193,9 +208,10 @@ export default function AdminOrdersPage() {
                         key={tab.value}
                         onClick={() => setFilter(tab.value)}
                         className={`px-4 py-2 rounded-lg font-medium transition-all ${filter === tab.value
-                            ? 'bg-amber-500 text-white'
+                            ? 'text-white'
                             : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
                             }`}
+                        style={filter === tab.value ? { backgroundColor: settings?.primaryColor || '#f59e0b' } : {}}
                     >
                         {tab.label}
                         {tab.count > 0 && (
@@ -211,7 +227,10 @@ export default function AdminOrdersPage() {
             {/* Orders List */}
             {loading ? (
                 <div className="flex items-center justify-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+                    <div
+                        className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
+                        style={{ borderColor: settings?.primaryColor || '#f59e0b' }}
+                    ></div>
                 </div>
             ) : filteredOrders.length === 0 ? (
                 <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-12 text-center">

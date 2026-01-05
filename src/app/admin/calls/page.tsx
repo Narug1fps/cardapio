@@ -1,14 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { FiBell, FiCheck, FiClock, FiRefreshCw, FiDollarSign } from 'react-icons/fi'
+import { playNotificationSound } from '@/utils/sound'
 import { WaiterCall } from '@/types/orders'
 import { useToast } from '@/components/Toast'
 
+import { useMenuSettings } from '@/components/MenuThemeProvider'
+
 export default function AdminCallsPage() {
+    const { settings } = useMenuSettings()
     const [calls, setCalls] = useState<WaiterCall[]>([])
     const [loading, setLoading] = useState(true)
     const { success, error } = useToast()
+    const prevCallCountRef = useRef(0)
 
     useEffect(() => {
         fetchCalls()
@@ -53,6 +58,14 @@ export default function AdminCallsPage() {
             setLoading(false)
         }
     }
+
+    // Play sound on new calls
+    useEffect(() => {
+        if (calls.length > prevCallCountRef.current) {
+            playNotificationSound()
+        }
+        prevCallCountRef.current = calls.length
+    }, [calls])
 
     const handleUpdateStatus = async (id: string, newStatus: 'acknowledged' | 'completed', tableNumber: number) => {
         try {
@@ -100,7 +113,10 @@ export default function AdminCallsPage() {
     if (loading && calls.length === 0) {
         return (
             <div className="flex items-center justify-center h-64">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+                <div
+                    className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
+                    style={{ borderColor: settings?.primaryColor || '#f59e0b' }}
+                ></div>
             </div>
         )
     }
@@ -142,25 +158,43 @@ export default function AdminCallsPage() {
                         <div
                             key={call.id}
                             className={`bg-zinc-900/50 rounded-2xl p-6 border transition-all group flex flex-col ${call.status === 'acknowledged'
-                                    ? 'border-amber-500/30 shadow-[0_0_15px_-3px_rgba(245,158,11,0.1)]'
-                                    : 'border-zinc-800 hover:border-red-500/30'
+                                ? 'shadow-[0_0_15px_-3px_rgba(245,158,11,0.1)]'
+                                : 'border-zinc-800 hover:border-red-500/30'
                                 }`}
+                            style={call.status === 'acknowledged' ? { borderColor: `${settings?.primaryColor}4D` } : {}}
                         >
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
-                                    <div className={`px-4 py-2 rounded-xl border ${call.status === 'acknowledged'
-                                            ? 'bg-amber-500/10 border-amber-500/30'
-                                            : 'bg-zinc-800 border-zinc-700'
-                                        }`}>
-                                        <span className={`text-xs uppercase font-bold tracking-wider ${call.status === 'acknowledged' ? 'text-amber-500' : 'text-gray-400'
-                                            }`}>Mesa</span>
+                                    <div
+                                        className="px-4 py-2 rounded-xl border flex flex-col items-center"
+                                        style={call.status === 'acknowledged' ? {
+                                            backgroundColor: `${settings?.primaryColor}1A`,
+                                            borderColor: `${settings?.primaryColor}4D`
+                                        } : {
+                                            backgroundColor: '#27272a', // zinc-800
+                                            borderColor: '#3f3f46' // zinc-700
+                                        }}
+                                    >
+                                        <span
+                                            className="text-xs uppercase font-bold tracking-wider"
+                                            style={call.status === 'acknowledged' ? { color: settings?.primaryColor } : { color: '#9ca3af' }}
+                                        >Mesa</span>
                                         <div className="text-2xl font-bold text-white text-center">{call.tableNumber}</div>
                                     </div>
                                     <div>
-                                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-1 ${call.type === 'bill' ? 'bg-green-500/20 text-green-400' :
-                                            call.type === 'assistance' ? 'bg-amber-500/20 text-amber-400' :
-                                                'bg-blue-500/20 text-blue-400'
-                                            }`}>
+                                        <span
+                                            className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide mb-1`}
+                                            style={call.type === 'assistance' ? {
+                                                backgroundColor: `${settings?.primaryColor}33`,
+                                                color: settings?.primaryColor
+                                            } : call.type === 'bill' ? {
+                                                backgroundColor: 'rgba(34, 197, 94, 0.2)', // green-500/20
+                                                color: '#4ade80' // green-400
+                                            } : {
+                                                backgroundColor: 'rgba(59, 130, 246, 0.2)', // blue-500/20
+                                                color: '#60a5fa' // blue-400
+                                            }}
+                                        >
                                             {getCallTypeLabel(call.type)}
                                         </span>
                                         <div className="flex items-center gap-2 text-zinc-400 text-sm">
@@ -194,7 +228,20 @@ export default function AdminCallsPage() {
                             {call.status === 'pending' ? (
                                 <button
                                     onClick={() => handleUpdateStatus(call.id, 'acknowledged', call.tableNumber)}
-                                    className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-zinc-800 text-zinc-300 font-medium rounded-xl hover:bg-amber-600 hover:text-white transition-all shadow-lg group-hover:bg-amber-600 group-hover:text-white"
+                                    className="w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-zinc-800 text-zinc-300 font-medium rounded-xl hover:text-white transition-all shadow-lg group-hover:text-white"
+                                    style={{
+                                        // We can't use hover:bg-dynamic easily, but we can set a bg that matches partially
+                                        // or just rely on global CSS variables if available. 
+                                        // For now let's just use inline style for non-hover, and maybe a border.
+                                        borderWidth: '1px',
+                                        borderColor: 'transparent'
+                                    }}
+                                    onMouseEnter={(e) => {
+                                        e.currentTarget.style.backgroundColor = settings?.primaryColor || '#f59e0b'
+                                    }}
+                                    onMouseLeave={(e) => {
+                                        e.currentTarget.style.backgroundColor = '#27272a' // zinc-800
+                                    }}
                                 >
                                     <FiCheck className="w-5 h-5" />
                                     Aceitar Chamado
@@ -203,8 +250,8 @@ export default function AdminCallsPage() {
                                 <button
                                     onClick={() => handleUpdateStatus(call.id, 'completed', call.tableNumber)}
                                     className={`w-full mt-4 flex items-center justify-center gap-2 px-4 py-3 font-medium rounded-xl transition-all shadow-lg text-white ${call.type === 'bill'
-                                            ? 'bg-green-600 hover:bg-green-700'
-                                            : 'bg-zinc-700 hover:bg-zinc-600'
+                                        ? 'bg-green-600 hover:bg-green-700'
+                                        : 'bg-zinc-700 hover:bg-zinc-600'
                                         }`}
                                 >
                                     {call.type === 'bill' ? <FiDollarSign className="w-5 h-5" /> : <FiCheck className="w-5 h-5" />}

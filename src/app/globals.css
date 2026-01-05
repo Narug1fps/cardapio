@@ -60,6 +60,7 @@ body {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -71,6 +72,7 @@ body {
     opacity: 0;
     transform: translateX(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -92,7 +94,19 @@ input[type="password"],
 input[type="number"],
 textarea,
 select {
-  @apply bg-zinc-900 border-zinc-700 text-white placeholder-zinc-500 rounded-lg focus:border-amber-500 focus:ring-amber-500/20;
+  @apply bg-zinc-900 border-zinc-700 text-white placeholder-zinc-500 rounded-lg;
+  border-color: #3f3f46;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--menu-primary, #f59e0b);
+  box-shadow: 0 0 0 1px var(--menu-primary, #f59e0b);
+  outline: none;
 }
 
 /* Button base */
@@ -101,7 +115,14 @@ select {
 }
 
 .btn-primary {
-  @apply bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700 shadow-lg shadow-amber-500/25;
+  background: linear-gradient(to right, var(--menu-primary, #f59e0b), var(--menu-secondary, #ea580c));
+  color: white;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 .btn-secondary {

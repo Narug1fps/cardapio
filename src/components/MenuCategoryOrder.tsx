@@ -31,7 +31,12 @@ export function MenuCategoryOrder({
                 {category.description && (
                     <p className="text-zinc-400">{category.description}</p>
                 )}
-                <div className="mt-3 h-1 w-20 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full" />
+                <div
+                    className="mt-3 h-1 w-20 rounded-full"
+                    style={{
+                        background: 'linear-gradient(to right, var(--menu-primary, #f59e0b), var(--menu-secondary, #ea580c))'
+                    }}
+                />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

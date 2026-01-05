@@ -17,9 +17,11 @@ import {
     FiAlertCircle,
     FiBell
 } from 'react-icons/fi'
+import { useMenuSettings } from '@/components/MenuThemeProvider'
 import type { DashboardStats } from '@/types/orders'
 
 export default function AdminDashboardPage() {
+    const { settings } = useMenuSettings()
     const [stats, setStats] = useState<DashboardStats | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -134,10 +136,16 @@ export default function AdminDashboardPage() {
 
             {/* Stats Cards - Centralized */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 rounded-2xl border border-amber-500/20 p-6">
+                <div
+                    className="rounded-2xl border p-6"
+                    style={{
+                        background: `linear-gradient(135deg, ${settings?.primaryColor}15, ${settings?.secondaryColor}05)`,
+                        borderColor: `${settings?.primaryColor}30`
+                    }}
+                >
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-3 bg-amber-500/20 rounded-xl">
-                            <FiShoppingBag className="w-6 h-6 text-amber-400" />
+                        <div className="p-3 rounded-xl" style={{ backgroundColor: `${settings?.primaryColor}20` }}>
+                            <FiShoppingBag className="w-6 h-6" style={{ color: settings?.primaryColor }} />
                         </div>
                     </div>
                     <p className="text-zinc-400 text-sm mb-1">Pedidos Hoje</p>
@@ -146,10 +154,16 @@ export default function AdminDashboardPage() {
                     </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-emerald-500/10 to-green-500/10 rounded-2xl border border-emerald-500/20 p-6">
+                <div
+                    className="rounded-2xl border p-6"
+                    style={{
+                        background: `linear-gradient(135deg, ${settings?.secondaryColor}15, ${settings?.primaryColor}05)`,
+                        borderColor: `${settings?.secondaryColor}30`
+                    }}
+                >
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-3 bg-emerald-500/20 rounded-xl">
-                            <FiDollarSign className="w-6 h-6 text-emerald-400" />
+                        <div className="p-3 rounded-xl" style={{ backgroundColor: `${settings?.secondaryColor}20` }}>
+                            <FiDollarSign className="w-6 h-6" style={{ color: settings?.secondaryColor }} />
                         </div>
                     </div>
                     <p className="text-zinc-400 text-sm mb-1">Faturamento Hoje</p>
@@ -158,13 +172,22 @@ export default function AdminDashboardPage() {
                     </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-yellow-500/10 to-amber-500/10 rounded-2xl border border-yellow-500/20 p-6">
+                <div
+                    className="rounded-2xl border p-6"
+                    style={{
+                        background: `linear-gradient(135deg, ${settings?.primaryColor}15, ${settings?.secondaryColor}05)`,
+                        borderColor: `${settings?.primaryColor}30`
+                    }}
+                >
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-3 bg-yellow-500/20 rounded-xl">
-                            <FiClock className="w-6 h-6 text-yellow-400" />
+                        <div className="p-3 rounded-xl" style={{ backgroundColor: `${settings?.primaryColor}20` }}>
+                            <FiClock className="w-6 h-6" style={{ color: settings?.primaryColor }} />
                         </div>
                         {(stats?.pendingOrders || 0) > 0 && (
-                            <span className="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full animate-pulse">
+                            <span
+                                className="text-black text-xs font-bold px-2 py-1 rounded-full animate-pulse"
+                                style={{ backgroundColor: settings?.primaryColor }}
+                            >
                                 FILA
                             </span>
                         )}
@@ -175,10 +198,16 @@ export default function AdminDashboardPage() {
                     </p>
                 </div>
 
-                <div className="bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-2xl border border-blue-500/20 p-6">
+                <div
+                    className="rounded-2xl border p-6"
+                    style={{
+                        background: `linear-gradient(135deg, ${settings?.secondaryColor}15, ${settings?.primaryColor}05)`,
+                        borderColor: `${settings?.secondaryColor}30`
+                    }}
+                >
                     <div className="flex items-center justify-between mb-4">
-                        <div className="p-3 bg-blue-500/20 rounded-xl">
-                            <FiRefreshCw className="w-6 h-6 text-blue-400" />
+                        <div className="p-3 rounded-xl" style={{ backgroundColor: `${settings?.secondaryColor}20` }}>
+                            <FiRefreshCw className="w-6 h-6" style={{ color: settings?.secondaryColor }} />
                         </div>
                     </div>
                     <p className="text-zinc-400 text-sm mb-1">Em Preparação</p>
@@ -236,11 +265,11 @@ export default function AdminDashboardPage() {
                             {stats.topDishes.map((dish, index) => (
                                 <li key={dish.name} className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-xl hover:bg-zinc-800 transition-colors">
                                     <div className="flex items-center gap-4">
-                                        <span className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${index === 0 ? 'bg-amber-500 text-black' :
-                                            index === 1 ? 'bg-zinc-400 text-black' :
-                                                index === 2 ? 'bg-amber-700 text-white' :
-                                                    'bg-zinc-700 text-zinc-400'
-                                            }`}>
+                                        <span
+                                            className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg ${index > 0 ? (index === 1 ? 'bg-zinc-400 text-black' : index === 2 ? 'text-white' : 'bg-zinc-700 text-zinc-400') : 'text-black'
+                                                }`}
+                                            style={index === 0 ? { backgroundColor: settings?.primaryColor } : index === 2 ? { backgroundColor: settings?.secondaryColor } : {}}
+                                        >
                                             {index + 1}
                                         </span>
                                         <span className="text-white font-medium text-lg">{dish.name}</span>

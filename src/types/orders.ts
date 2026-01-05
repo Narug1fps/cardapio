@@ -43,6 +43,7 @@ export interface Table {
     seats: number
     isActive: boolean
     qrCode?: string
+    status?: 'available' | 'occupied' | 'reserved'
     createdAt?: string
 }
 
@@ -81,6 +82,7 @@ export interface Order {
     completedAt?: string
     createdAt: string
     updatedAt: string
+    paid?: boolean
     items?: OrderItem[]
 }
 

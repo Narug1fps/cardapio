@@ -11,13 +11,16 @@ import {
     FiRefreshCw,
     FiDownload,
     FiCopy,
-    FiAlertTriangle
+    FiAlertTriangle,
+    FiDollarSign
 } from 'react-icons/fi'
 import { FaQrcode } from 'react-icons/fa'
 import { useToast } from '@/components/Toast'
+import { useMenuSettings } from '@/components/MenuThemeProvider'
 import { Table } from '@/types/orders'
 
 export default function AdminTablesPage() {
+    const { settings } = useMenuSettings()
     const [tables, setTables] = useState<Table[]>([])
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
@@ -26,11 +29,76 @@ export default function AdminTablesPage() {
     const [newTable, setNewTable] = useState({ number: 0, name: '', seats: 4 })
     const [qrModalTable, setQrModalTable] = useState<Table | null>(null)
     const [deleteConfirmation, setDeleteConfirmation] = useState<string | null>(null)
+    const [finalizeConfirmation, setFinalizeConfirmation] = useState<number | null>(null)
+    const [tableTotals, setTableTotals] = useState<Record<number, number>>({})
+    const [finalizing, setFinalizing] = useState<number | null>(null)
     const { success, error } = useToast()
 
     useEffect(() => {
         fetchTables()
+        fetchTableTotals()
+
+        // Refresh totals every 15 seconds
+        const interval = setInterval(fetchTableTotals, 15000)
+        return () => clearInterval(interval)
     }, [])
+
+    const fetchTableTotals = async () => {
+        try {
+            const response = await fetch('/api/orders?status=unpaid')
+            if (response.ok) {
+                const orders = await response.json()
+                const totals: Record<number, number> = {}
+
+                orders.forEach((order: any) => {
+                    totals[order.tableNumber] = (totals[order.tableNumber] || 0) + Number(order.total)
+                })
+
+                setTableTotals(totals)
+            }
+        } catch (e) {
+            console.error('Error fetching table totals:', e)
+        }
+    }
+
+    const handleFinalize = (tableNumber: number) => {
+        setFinalizeConfirmation(tableNumber)
+    }
+
+    const executeFinalize = async () => {
+        if (!finalizeConfirmation) return
+        const tableNumber = finalizeConfirmation
+
+        setFinalizing(tableNumber)
+        try {
+            const response = await fetch('/api/tables/finalize', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ tableNumber })
+            })
+
+            if (response.ok) {
+                success(`Mesa ${tableNumber} finalizada com sucesso!`)
+                await fetchTableTotals()
+                await fetchTables() // Refresh status if needed
+            } else {
+                error('Erro ao finalizar mesa')
+            }
+        } catch (e) {
+            console.error('Error finalizing table:', e)
+            error('Erro ao finalizar mesa')
+        } finally {
+            setFinalizing(null)
+            setFinalizeConfirmation(null)
+        }
+    }
+
+    const formatPrice = (price: number) => {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(price)
+    }
 
     const fetchTables = async () => {
         try {
@@ -185,7 +253,10 @@ export default function AdminTablesPage() {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+                <div
+                    className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
+                    style={{ borderColor: 'var(--menu-primary, #f59e0b)' }}
+                ></div>
             </div>
         )
     }
@@ -211,7 +282,10 @@ export default function AdminTablesPage() {
                             setNewTable({ number: getNextTableNumber(), name: '', seats: 4 })
                             setIsCreating(true)
                         }}
-                        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all"
+                        className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all"
+                        style={{
+                            background: `linear-gradient(to right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`
+                        }}
                     >
                         <FiPlus className="w-4 h-4" />
                         Nova Mesa
@@ -221,7 +295,10 @@ export default function AdminTablesPage() {
 
             {/* Create Table Form */}
             {isCreating && (
-                <div className="bg-zinc-900/50 rounded-2xl border border-amber-500/30 p-6 animate-fade-in">
+                <div
+                    className="bg-zinc-900/50 rounded-2xl border p-6 animate-fade-in"
+                    style={{ borderColor: `${settings?.primaryColor}4D` }} // 30% opacity
+                >
                     <h2 className="text-lg font-semibold text-white mb-4">Nova Mesa</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -265,7 +342,10 @@ export default function AdminTablesPage() {
                         <button
                             onClick={handleCreateTable}
                             disabled={saving}
-                            className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50"
+                            style={{
+                                background: `linear-gradient(to right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`
+                            }}
                         >
                             {saving ? <FiRefreshCw className="w-4 h-4 animate-spin" /> : <FiCheck className="w-4 h-4" />}
                             Salvar
@@ -341,7 +421,10 @@ export default function AdminTablesPage() {
                         <button
                             onClick={handleUpdateTable}
                             disabled={saving}
-                            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50"
+                            style={{
+                                background: `linear-gradient(to right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`
+                            }}
                         >
                             {saving ? <FiRefreshCw className="w-4 h-4 animate-spin" /> : <FiCheck className="w-4 h-4" />}
                             Salvar Alterações
@@ -391,6 +474,28 @@ export default function AdminTablesPage() {
                             <span>{table.seats} lugares</span>
                         </div>
 
+                        {/* Bill Total and Finalize */}
+                        {tableTotals[table.number] > 0 && (
+                            <div className="mb-6 p-4 bg-zinc-950/50 rounded-xl border border-zinc-800">
+                                <p className="text-zinc-400 text-xs mb-1 uppercase tracking-wider font-bold">Total a Pagar</p>
+                                <div className="flex items-end justify-between">
+                                    <span className="text-2xl font-bold text-white">{formatPrice(tableTotals[table.number])}</span>
+                                    <button
+                                        onClick={() => handleFinalize(table.number)}
+                                        disabled={finalizing === table.number}
+                                        className="flex items-center gap-2 px-3 py-1.5 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                                    >
+                                        {finalizing === table.number ? (
+                                            <FiRefreshCw className="w-4 h-4 animate-spin" />
+                                        ) : (
+                                            <FiDollarSign className="w-4 h-4" />
+                                        )}
+                                        Finalizar
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setQrModalTable(table)}
@@ -418,92 +523,140 @@ export default function AdminTablesPage() {
             </div>
 
             {/* Empty State */}
-            {tables.length === 0 && !isCreating && (
-                <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-12 text-center">
-                    <FiUsers className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                    <p className="text-zinc-500 mb-4">Nenhuma mesa cadastrada</p>
-                    <button
-                        onClick={() => {
-                            setNewTable({ number: 1, name: '', seats: 4 })
-                            setIsCreating(true)
-                        }}
-                        className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors"
-                    >
-                        Adicionar Primeira Mesa
-                    </button>
-                </div>
-            )}
+            {
+                tables.length === 0 && !isCreating && (
+                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-12 text-center">
+                        <FiUsers className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+                        <p className="text-zinc-500 mb-4">Nenhuma mesa cadastrada</p>
+                        <button
+                            onClick={() => {
+                                setNewTable({ number: 1, name: '', seats: 4 })
+                                setIsCreating(true)
+                            }}
+                            className="px-4 py-2 text-white rounded-lg transition-colors"
+                            style={{ backgroundColor: settings?.primaryColor || '#f59e0b' }}
+                        >
+                            Adicionar Primeira Mesa
+                        </button>
+                    </div>
+                )
+            }
 
             {/* QR Code Modal */}
-            {qrModalTable && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        onClick={() => setQrModalTable(null)}
-                    />
-                    <div className="relative bg-zinc-900 rounded-2xl border border-zinc-800 p-6 max-w-md w-full animate-fade-in">
-                        <button
+            {
+                qrModalTable && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <div
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                             onClick={() => setQrModalTable(null)}
-                            className="absolute top-4 right-4 p-2 rounded-lg hover:bg-zinc-800 text-zinc-400"
-                        >
-                            <FiX className="w-5 h-5" />
-                        </button>
-                        {/* ... QR Code Content ... */}
-                        <h2 className="text-xl font-bold text-white mb-2">QR Code - Mesa {qrModalTable.number}</h2>
-                        <div className="bg-white rounded-xl p-4 mb-4">
-                            <img
-                                src={generateQRCodeUrl(qrModalTable.number)}
-                                alt={`QR Code Mesa ${qrModalTable.number}`}
-                                className="w-full aspect-square"
-                            />
-                        </div>
-                        <div className="flex gap-3">
+                        />
+                        <div className="relative bg-zinc-900 rounded-2xl border border-zinc-800 p-6 max-w-md w-full animate-fade-in">
                             <button
-                                onClick={() => downloadQRCode(qrModalTable.number)}
-                                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all"
+                                onClick={() => setQrModalTable(null)}
+                                className="absolute top-4 right-4 p-2 rounded-lg hover:bg-zinc-800 text-zinc-400"
                             >
-                                <FiDownload className="w-5 h-5" />
-                                Baixar QR Code
+                                <FiX className="w-5 h-5" />
                             </button>
+                            {/* ... QR Code Content ... */}
+                            <h2 className="text-xl font-bold text-white mb-2">QR Code - Mesa {qrModalTable.number}</h2>
+                            <div className="bg-white rounded-xl p-4 mb-4">
+                                <img
+                                    src={generateQRCodeUrl(qrModalTable.number)}
+                                    alt={`QR Code Mesa ${qrModalTable.number}`}
+                                    className="w-full aspect-square"
+                                />
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => downloadQRCode(qrModalTable.number)}
+                                    className="flex-1 flex items-center justify-center gap-2 px-4 py-3 text-white rounded-xl transition-all"
+                                    style={{
+                                        background: `linear-gradient(to right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`
+                                    }}
+                                >
+                                    <FiDownload className="w-5 h-5" />
+                                    Baixar QR Code
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* DELETE CONFIRMATION MODAL */}
-            {deleteConfirmation && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-                    <div
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                        onClick={() => setDeleteConfirmation(null)}
-                    />
-                    <div className="relative bg-zinc-900 rounded-2xl border border-red-500/30 p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-red-500/10">
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
-                                <FiAlertTriangle className="w-6 h-6 text-red-500" />
-                            </div>
-                            <h3 className="text-xl font-bold text-white mb-2">Excluir Mesa?</h3>
-                            <p className="text-zinc-400 mb-6">
-                                Tem certeza que deseja excluir esta mesa? Esta ação não pode ser desfeita e removerá o histórico associado.
-                            </p>
-                            <div className="flex gap-3 w-full">
-                                <button
-                                    onClick={() => setDeleteConfirmation(null)}
-                                    className="flex-1 px-4 py-2 bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors"
-                                >
-                                    Cancelar
-                                </button>
-                                <button
-                                    onClick={executeDelete}
-                                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
-                                >
-                                    Excluir
-                                </button>
+            {
+                deleteConfirmation && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <div
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            onClick={() => setDeleteConfirmation(null)}
+                        />
+                        <div className="relative bg-zinc-900 rounded-2xl border border-red-500/30 p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-red-500/10">
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                                    <FiAlertTriangle className="w-6 h-6 text-red-500" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">Excluir Mesa?</h3>
+                                <p className="text-zinc-400 mb-6">
+                                    Tem certeza que deseja excluir esta mesa? Esta ação não pode ser desfeita e removerá o histórico associado.
+                                </p>
+                                <div className="flex gap-3 w-full">
+                                    <button
+                                        onClick={() => setDeleteConfirmation(null)}
+                                        className="flex-1 px-4 py-2 bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={executeDelete}
+                                        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
+                                    >
+                                        Excluir
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+            {/* FINALIZE CONFIRMATION MODAL */}
+            {
+                finalizeConfirmation && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <div
+                            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                            onClick={() => setFinalizeConfirmation(null)}
+                        />
+                        <div className="relative bg-zinc-900 rounded-2xl border border-emerald-500/30 p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-emerald-500/10">
+                            <div className="flex flex-col items-center text-center">
+                                <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+                                    <FiDollarSign className="w-6 h-6 text-emerald-500" />
+                                </div>
+                                <h3 className="text-xl font-bold text-white mb-2">Finalizar Mesa {finalizeConfirmation}?</h3>
+                                <p className="text-zinc-400 mb-6">
+                                    Confirma o pagamento total de <strong className="text-white">{formatPrice(tableTotals[finalizeConfirmation] || 0)}</strong>? Esta ação limpará os pedidos da mesa.
+                                </p>
+                                <div className="flex gap-3 w-full">
+                                    <button
+                                        onClick={() => setFinalizeConfirmation(null)}
+                                        className="flex-1 px-4 py-2 bg-zinc-800 text-white rounded-xl hover:bg-zinc-700 transition-colors"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        onClick={executeFinalize}
+                                        disabled={finalizing !== null}
+                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                                    >
+                                        {finalizing === finalizeConfirmation ? <FiRefreshCw className="w-4 h-4 animate-spin" /> : <FiCheck className="w-4 h-4" />}
+                                        Confirmar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
+        </div >
     )
 }

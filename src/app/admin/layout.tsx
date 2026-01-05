@@ -85,7 +85,7 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
         router.push('/admin/login')
         return (
             <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: bgColor }}>
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: bgPrimary }}></div>
             </div>
         )
     }
@@ -101,7 +101,10 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
                     >
                         <FiMenu className="w-6 h-6" />
                     </button>
-                    <h1 className="text-lg font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                    <h1
+                        className="text-lg font-bold bg-clip-text text-transparent"
+                        style={{ backgroundImage: `linear-gradient(to right, ${bgPrimary}, ${bgSecondary})` }}
+                    >
                         Admin
                     </h1>
                     <Link
@@ -128,7 +131,10 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
                 {/* Sidebar Header */}
                 <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
                     <div>
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                        <h1
+                            className="text-xl font-bold bg-clip-text text-transparent"
+                            style={{ backgroundImage: `linear-gradient(to right, ${bgPrimary}, ${bgSecondary})` }}
+                        >
                             Admin Panel
                         </h1>
                         <p className="text-zinc-500 text-sm mt-1">Sabores & Aromas</p>
@@ -145,7 +151,10 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
                 {user && (
                     <div className="px-4 py-3 border-b border-zinc-800">
                         <div className="flex items-center gap-3 px-2">
-                            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 flex items-center justify-center">
+                            <div
+                                className="w-10 h-10 rounded-full flex items-center justify-center"
+                                style={{ background: `linear-gradient(to right, ${bgPrimary}, ${bgSecondary})` }}
+                            >
                                 <FiUser className="w-5 h-5 text-white" />
                             </div>
                             <div className="flex-1 min-w-0">
@@ -167,9 +176,16 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
                                     href={item.href}
                                     onClick={() => setSidebarOpen(false)}
                                     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive(item)
-                                        ? 'bg-gradient-to-r from-amber-500/20 to-orange-500/20 text-amber-400 border border-amber-500/20'
+                                        ? ''
                                         : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
                                         }`}
+                                    style={isActive(item) ? {
+                                        background: `linear-gradient(to right, ${bgPrimary}33, ${bgSecondary}33)`,
+                                        color: bgPrimary,
+                                        borderColor: `${bgPrimary}33`,
+                                        borderWidth: '1px',
+                                        borderStyle: 'solid'
+                                    } : {}}
                                 >
                                     <item.icon className="w-5 h-5" />
                                     {item.label}
@@ -210,7 +226,7 @@ function AdminLayoutContent({ children }: { children: ReactNode }) {
                     {children}
                 </div>
             </main>
-        </div>
+        </div >
     )
 }
 
