@@ -8,6 +8,7 @@ import { FloatingCart } from '@/components/FloatingCart'
 import { FloatingWaiterButton } from '@/components/FloatingWaiterButton'
 import { FiArrowLeft, FiClipboard } from 'react-icons/fi'
 import { MenuThemeProvider, useMenuSettings } from '@/components/MenuThemeProvider'
+
 import type { Category, Dish } from '@/types/menu'
 import type { Order } from '@/types/orders'
 
@@ -111,16 +112,15 @@ function MenuContent() {
         }
     }
 
+
+    // Inside MenuContent component:
     if (loading || settingsLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-                <div className="text-center">
-                    <div
-                        className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 mx-auto mb-4"
-                        style={{ borderColor: settings?.primaryColor || '#f59e0b' }}
-                    ></div>
-                    <p className="text-zinc-400">Carregando cardápio...</p>
-                </div>
+            <div className="min-h-screen flex items-center justify-center bg-[var(--menu-bg)]">
+                <div
+                    className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
+                    style={{ borderColor: 'var(--menu-primary, #f59e0b)' }}
+                ></div>
             </div>
         )
     }
@@ -128,7 +128,7 @@ function MenuContent() {
     return (
         <MenuThemeProvider initialSettings={settings}>
             <div
-                className="min-h-screen pb-24"
+                className="min-h-screen flex flex-col animate-fade-in"
                 style={{
                     backgroundColor: 'var(--menu-bg, #09090b)',
                     color: 'var(--menu-text, #ffffff)'
@@ -269,8 +269,8 @@ function MenuContent() {
                     />
                 )}
 
-                <footer className="border-t border-white/10 py-8 mt-12 bg-black/20">
-                    <div className="container mx-auto px-4 text-center opacity-50 text-sm">
+                <footer className="border-t border-black/5 dark:border-white/10 py-8 mt-auto bg-[var(--menu-bg)] opacity-90">
+                    <div className="container mx-auto px-4 text-center opacity-70 text-sm">
                         <p>{settings?.footerText || `© ${new Date().getFullYear()} ${settings?.restaurantName || 'Sabores & Aromas'}. Todos os direitos reservados.`}</p>
                     </div>
                 </footer>

@@ -9,11 +9,13 @@ import {
     FiDroplet,
     FiEye,
     FiCheck,
-    FiLayout
+    FiLayout,
+    FiPlus
 } from 'react-icons/fi'
 import type { MenuSettings } from '@/types/orders'
 import { ImageUpload } from '@/components/ImageUpload'
 import { useToast } from '@/components/Toast'
+import { useMenuSettings } from '@/components/MenuThemeProvider'
 
 const fontOptions = [
     { value: 'Inter', label: 'Inter (Moderno)' },
@@ -40,7 +42,7 @@ const colorPresets = [
 // Component moved outside to prevent re-creation on render
 const ColorInput = ({ label, value, onChange }: { label: string, value: string, onChange: (color: string) => void }) => (
     <div>
-        <label className="block text-sm font-medium text-zinc-400 mb-2">
+        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--card-text-secondary)' }}>
             {label}
         </label>
         <div className="flex gap-2">
@@ -58,20 +60,22 @@ const ColorInput = ({ label, value, onChange }: { label: string, value: string, 
                 maxLength={7}
             />
         </div>
-    </div>
+    </div >
 )
 
 export default function AdminDesignPage() {
+    const { settings: globalSettings, loading, updateLocalSettings } = useMenuSettings()
     const [settings, setSettings] = useState<MenuSettings | null>(null)
-    const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [saved, setSaved] = useState(false)
     const [fontLoaded, setFontLoaded] = useState(false)
     const { success, error } = useToast()
 
     useEffect(() => {
-        fetchSettings()
-    }, [])
+        if (globalSettings) {
+            setSettings(globalSettings)
+        }
+    }, [globalSettings])
 
     // Load font dynamically when settings change
     useEffect(() => {
@@ -99,36 +103,20 @@ export default function AdminDesignPage() {
         document.head.appendChild(link)
     }
 
-    const fetchSettings = async () => {
-        try {
-            const response = await fetch('/api/settings')
-            if (response.ok) {
-                const data = await response.json()
-                setSettings(data)
-            }
-        } catch (e) {
-            console.error('Error fetching settings:', e)
-            error('Erro ao carregar configurações')
-        } finally {
-            setLoading(false)
-        }
-    }
-
     const handleSave = async () => {
         if (!settings) return
+
         setSaving(true)
         try {
             const response = await fetch('/api/settings', {
-                method: 'PUT',
+                method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(settings)
             })
+
             if (response.ok) {
                 setSaved(true)
-                success('Configurações salvas com sucesso!')
-                setTimeout(() => setSaved(false), 3000)
-            } else {
-                throw new Error('Failed to save')
+                setTimeout(() => setSaved(false), 2000)
             }
         } catch (e) {
             console.error('Error saving settings:', e)
@@ -140,7 +128,7 @@ export default function AdminDesignPage() {
 
     const applyPreset = (preset: typeof colorPresets[0]) => {
         if (!settings) return
-        setSettings({
+        const newSettings = {
             ...settings,
             primaryColor: preset.primary,
             secondaryColor: preset.secondary,
@@ -149,12 +137,16 @@ export default function AdminDesignPage() {
             textColor: preset.text,
             cardBackgroundColor: preset.cardBg,
             cardTextColor: preset.cardText
-        })
+        }
+        setSettings(newSettings)
+        updateLocalSettings(newSettings)
     }
 
     const updateSetting = (key: keyof MenuSettings, value: any) => {
         if (!settings) return
-        setSettings(prev => prev ? ({ ...prev, [key]: value }) : null)
+        const newSettings = { ...settings, [key]: value }
+        setSettings(newSettings)
+        updateLocalSettings(newSettings)
     }
 
     if (loading) return null // Loading handled by layout
@@ -176,8 +168,8 @@ export default function AdminDesignPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Personalizar Design</h1>
-                    <p className="text-zinc-400 mt-1">Customize a aparência do seu cardápio</p>
+                    <h1 className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>Personalizar Design</h1>
+                    <p className="mt-1" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Customize a aparência do seu cardápio</p>
                 </div>
                 <button
                     onClick={handleSave}
@@ -198,18 +190,21 @@ export default function AdminDesignPage() {
                 {/* Settings Column */}
                 <div className="space-y-6">
                     {/* Basic Info */}
-                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
-                        <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                    <div
+                        className="rounded-2xl p-6"
+                        style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                    >
+                        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2" style={{ color: settings?.cardTextColor || '#ffffffff' }}>
                             <FiType
                                 className="w-5 h-5"
-                                style={{ color: settings.primaryColor || '#f59e0b' }}
+                                style={{ color: settings?.primaryColor || '#f59e0b' }}
                             />
                             Informações Básicas
                         </h2>
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-zinc-400 mb-2">
+                                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--card-text-secondary)' }}>
                                     Nome do Restaurante
                                 </label>
                                 <input
@@ -236,7 +231,7 @@ export default function AdminDesignPage() {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-zinc-400 mb-2">
+                                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--card-text-secondary)' }}>
                                     Mensagem de Boas-vindas
                                 </label>
                                 <textarea
@@ -250,8 +245,11 @@ export default function AdminDesignPage() {
                     </div>
 
                     {/* Theme Colors - New Section */}
-                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
-                        <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                    <div
+                        className="rounded-2xl p-6"
+                        style={{ backgroundColor: settings.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                    >
+                        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2" style={{ color: settings.cardTextColor || '#ffffff' }}>
                             <FiDroplet
                                 className="w-5 h-5"
                                 style={{ color: settings.primaryColor || '#f59e0b' }}
@@ -267,8 +265,11 @@ export default function AdminDesignPage() {
                     </div>
 
                     {/* Card Customization */}
-                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
-                        <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                    <div
+                        className="rounded-2xl p-6"
+                        style={{ backgroundColor: settings.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                    >
+                        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2" style={{ color: settings.cardTextColor || '#ffffff' }}>
                             <FiLayout
                                 className="w-5 h-5"
                                 style={{ color: settings.primaryColor || '#f59e0b' }}
@@ -284,7 +285,7 @@ export default function AdminDesignPage() {
 
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-2">
+                                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--card-text-secondary)' }}>
                                         Arredondamento
                                     </label>
                                     <select
@@ -299,7 +300,7 @@ export default function AdminDesignPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-zinc-400 mb-2">
+                                    <label className="block text-sm font-medium mb-2" style={{ color: 'var(--card-text-secondary)' }}>
                                         Tamanho
                                     </label>
                                     <select
@@ -317,8 +318,11 @@ export default function AdminDesignPage() {
                     </div>
 
                     {/* Font Settings */}
-                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
-                        <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                    <div
+                        className="rounded-2xl p-6"
+                        style={{ backgroundColor: settings.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                    >
+                        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2" style={{ color: settings.cardTextColor || '#ffffff' }}>
                             <FiType
                                 className="w-5 h-5"
                                 style={{ color: settings.primaryColor || '#f59e0b' }}
@@ -327,7 +331,7 @@ export default function AdminDesignPage() {
                         </h2>
 
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">
+                            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--card-text-secondary)' }}>
                                 Fonte Principal
                             </label>
                             <select
@@ -343,8 +347,11 @@ export default function AdminDesignPage() {
                     </div>
 
                     {/* Color Presets */}
-                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
-                        <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                    <div
+                        className="rounded-2xl p-6"
+                        style={{ backgroundColor: settings.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                    >
+                        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2" style={{ color: settings.cardTextColor || '#ffffff' }}>
                             <FiDroplet
                                 className="w-5 h-5"
                                 style={{ color: settings.primaryColor || '#f59e0b' }}
@@ -357,14 +364,14 @@ export default function AdminDesignPage() {
                                 <button
                                     key={preset.name}
                                     onClick={() => applyPreset(preset)}
-                                    className="group p-3 rounded-xl border border-zinc-700 hover:border-zinc-600 transition-all"
+                                    className="group p-3 rounded-xl bg-zinc-800/50 hover:bg-zinc-700/50 transition-all"
                                 >
                                     <div className="flex gap-1 mb-2">
                                         <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.primary }} />
                                         <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.secondary }} />
                                         <div className="w-4 h-4 rounded-full" style={{ backgroundColor: preset.accent }} />
                                     </div>
-                                    <p className="text-xs text-zinc-500 group-hover:text-zinc-300 transition-colors truncate">
+                                    <p className="text-xs transition-colors truncate" style={{ color: 'var(--card-text-secondary)' }}>
                                         {preset.name}
                                     </p>
                                 </button>
@@ -375,8 +382,11 @@ export default function AdminDesignPage() {
 
                 {/* Preview Column */}
                 <div className="lg:sticky lg:top-8 h-fit">
-                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
-                        <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+                    <div
+                        className="rounded-2xl p-6"
+                        style={{ backgroundColor: settings.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                    >
+                        <h2 className="text-xl font-semibold mb-6 flex items-center gap-2" style={{ color: settings.cardTextColor || '#ffffff' }}>
                             <FiEye
                                 className="w-5 h-5"
                                 style={{ color: settings.primaryColor || '#f59e0b' }}
@@ -386,14 +396,14 @@ export default function AdminDesignPage() {
 
                         {/* Mock Preview */}
                         <div
-                            className="rounded-xl overflow-hidden border border-zinc-700 relative isolate"
+                            className="rounded-xl overflow-hidden relative isolate h-[600px] overflow-y-auto custom-scrollbar"
                             style={{
                                 backgroundColor: settings.backgroundColor,
                                 fontFamily: settings.fontFamily
                             }}
                         >
                             {/* Header Preview */}
-                            <div className="p-6 text-center border-b border-zinc-700/50 relative z-10 w-full overflow-hidden">
+                            <div className="p-6 text-center relative z-10 w-full overflow-hidden">
                                 <div className="text-4xl mb-4 flex justify-center">
                                     {settings.logoUrl ? (
                                         <img src={settings.logoUrl} alt="Logo" className="h-16 w-16 object-contain" />
@@ -429,53 +439,63 @@ export default function AdminDesignPage() {
 
                             {/* Menu Item Preview */}
                             <div className="p-4 relative z-10">
-                                <div
-                                    className="overflow-hidden mb-4 shadow-lg transition-transform hover:scale-[1.02]"
-                                    style={{
-                                        backgroundColor: settings.cardBackgroundColor,
-                                        borderRadius: getBorderRadius(settings.cardBorderRadius),
-                                        padding: settings.cardSize === 'compact' ? '0.75rem' : settings.cardSize === 'large' ? '1.5rem' : '1rem'
-                                    }}
-                                >
-                                    {settings.showImages && (
-                                        <div className="h-32 bg-gradient-to-br from-zinc-800 to-zinc-700 flex items-center justify-center rounded-lg mb-3">
-                                            <FiImage className="w-8 h-8 text-zinc-600" />
-                                        </div>
-                                    )}
-                                    <div>
-                                        <h4
-                                            className="font-semibold"
-                                            style={{ color: settings.cardTextColor }}
-                                        >
-                                            Prato Exemplo
-                                        </h4>
-                                        <p
-                                            className="text-sm mt-1 opacity-70"
-                                            style={{ color: settings.cardTextColor }}
-                                        >
-                                            Descrição deliciosa do prato...
-                                        </p>
-                                        {settings.showPrices && (
-                                            <p
-                                                className="text-lg font-bold mt-2"
-                                                style={{ color: settings.primaryColor }}
-                                            >
-                                                R$ 49,90
-                                            </p>
-                                        )}
-                                        <button
-                                            className="mt-3 w-full py-2 rounded-lg text-white font-medium shadow-md shadow-amber-500/20"
+                                <h4 className="font-bold text-lg mb-4 opacity-80" style={{ color: settings.textColor }}>Principais</h4>
+                                <div className={`grid gap-4 ${settings.cardSize === 'compact' ? 'grid-cols-2' :
+                                    settings.cardSize === 'large' ? 'grid-cols-1' :
+                                        'grid-cols-1'
+                                    }`}>
+                                    {[1, 2, 3, 4, 5, 6].map((i) => (
+                                        <div
+                                            key={i}
+                                            className="overflow-hidden transition-transform hover:scale-[1.02]"
                                             style={{
-                                                background: `linear-gradient(to right, ${settings.primaryColor}, ${settings.secondaryColor})`
+                                                backgroundColor: settings.cardBackgroundColor,
+                                                borderRadius: getBorderRadius(settings.cardBorderRadius)
                                             }}
                                         >
-                                            Adicionar
-                                        </button>
-                                    </div>
+                                            {settings.showImages && (
+                                                <div
+                                                    className={`flex items-center justify-center ${settings.cardSize === 'compact' ? 'h-20' : 'h-28'}`}
+                                                    style={{
+                                                        backgroundColor: settings.cardBackgroundColor === '#ffffff' ? '#3f3f46' : 'rgba(0,0,0,0.3)',
+                                                        borderRadius: `${getBorderRadius(settings.cardBorderRadius)} ${getBorderRadius(settings.cardBorderRadius)} 0 0`
+                                                    }}
+                                                >
+                                                    <FiImage className="w-8 h-8" style={{ color: settings.cardBackgroundColor === '#ffffff' ? '#71717a' : 'rgba(255,255,255,0.3)' }} />
+                                                </div>
+                                            )}
+                                            <div style={{ padding: settings.cardSize === 'compact' ? '0.75rem' : settings.cardSize === 'large' ? '1.25rem' : '1rem' }}>
+                                                <h4
+                                                    className="font-medium text-sm line-clamp-1"
+                                                    style={{ color: settings.cardTextColor }}
+                                                >
+                                                    Prato Exemplo {i}
+                                                </h4>
+                                                {settings.showPrices && (
+                                                    <div className="flex items-center justify-between mt-2">
+                                                        <p
+                                                            className="text-sm font-medium"
+                                                            style={{ color: settings.cardTextColor, opacity: 0.7 }}
+                                                        >
+                                                            R$ {29 + i},90
+                                                        </p>
+                                                        <div
+                                                            className="w-7 h-7 flex items-center justify-center text-white rounded-md"
+                                                            style={{
+                                                                backgroundColor: settings.primaryColor
+                                                            }}
+                                                        >
+                                                            <FiPlus className="w-4 h-4" />
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
 
                                 {/* Footer Preview */}
-                                <div className="text-center py-4 border-t border-zinc-700/50 mt-4">
+                                <div className="text-center py-8 mt-4">
                                     <p className="text-sm opacity-50" style={{ color: settings.textColor }}>
                                         {settings.footerText || `© ${new Date().getFullYear()} ${settings.restaurantName}`}
                                     </p>

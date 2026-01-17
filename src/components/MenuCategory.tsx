@@ -18,7 +18,10 @@ export function MenuCategory({ category, dishes }: MenuCategoryProps) {
     return (
         <section className="mb-12">
             <div className="mb-6">
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                <h2
+                    className="text-2xl md:text-3xl font-bold mb-2"
+                    style={{ color: 'var(--menu-text, #ffffff)' }}
+                >
                     {category.name}
                 </h2>
                 {category.description && (
@@ -27,11 +30,12 @@ export function MenuCategory({ category, dishes }: MenuCategoryProps) {
                 <div className="mt-3 h-1 w-20 bg-gradient-to-r from-amber-500 to-orange-600 rounded-full" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
                 {categoryDishes.map(dish => (
                     <DishCard key={dish.$id} dish={dish} />
                 ))}
             </div>
-        </section>
+        </section >
     )
 }

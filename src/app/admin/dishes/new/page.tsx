@@ -149,7 +149,7 @@ export default function NewDishPage() {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl">
-                <div className="card space-y-6 rounded-2xl p-6 border" style={{ backgroundColor: 'transparent', borderColor: 'rgba(255,255,255,0.05)' }}>
+                <div className="card space-y-6 rounded-2xl p-6 border border-gray-700" style={{ backgroundColor: settings?.cardBackgroundColor || 'transparent' }}>
                     {/* Image Upload */}
                     <div>
                         <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text, #fff)', opacity: 0.8 }}>
@@ -167,7 +167,7 @@ export default function NewDishPage() {
                                     <span className="text-4xl">🍽️</span>
                                 )}
                             </div>
-                            <label className="flex-1 flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-lg cursor-pointer transition-colors hover:bg-white/5" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+                            <label className="flex-1 flex flex-col items-center justify-center p-4 rounded-lg cursor-pointer transition-colors hover:opacity-80" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                                 <div className="flex flex-col items-center gap-2" style={{ color: 'var(--menu-text, #fff)', opacity: 0.6 }}>
                                     <FaUpload className="w-8 h-8" />
                                     <span className="text-sm">Clique para upload</span>
@@ -184,16 +184,15 @@ export default function NewDishPage() {
 
                     {/* Name */}
                     <div>
-                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text, #fff)', opacity: 0.8 }}>
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text, #000)', opacity: 0.8 }}>
                             Nome *
                         </label>
                         <input
                             type="text"
                             {...register('name')}
-                            className="w-full rounded-lg border p-3 bg-transparent transition-colors focus:ring-2 focus:ring-opacity-50"
+                            className="w-full rounded-lg border border-gray-600 p-3 bg-transparent text-black transition-colors focus:outline-none focus:ring-0"
                             style={{
-                                borderColor: 'rgba(255,255,255,0.1)',
-                                color: settings?.textColor || '#fff',
+                                color: 'var(--menu-text, #fff)',
                                 outlineColor: settings?.primaryColor || '#f59e0b'
                             }}
                             placeholder="Ex: Filé Mignon ao Molho Madeira"
@@ -211,9 +210,8 @@ export default function NewDishPage() {
                         <textarea
                             {...register('description')}
                             rows={3}
-                            className="w-full rounded-lg border p-3 bg-transparent transition-colors focus:ring-2 focus:ring-opacity-50"
+                            className="w-full rounded-lg border border-gray-600 p-3 bg-transparent transition-colors focus:outline-none focus:ring-0"
                             style={{
-                                borderColor: 'rgba(255,255,255,0.1)',
                                 color: settings?.textColor || '#fff',
                                 outlineColor: settings?.primaryColor || '#f59e0b'
                             }}
@@ -234,9 +232,8 @@ export default function NewDishPage() {
                                 type="number"
                                 step="0.01"
                                 {...register('price')}
-                                className="w-full rounded-lg border p-3 bg-transparent transition-colors focus:ring-2 focus:ring-opacity-50"
+                                className="w-full rounded-lg border border-gray-600 p-3 bg-transparent transition-colors focus:outline-none focus:ring-0"
                                 style={{
-                                    borderColor: 'rgba(255,255,255,0.1)',
                                     color: 'var(--menu-text, #fff)',
                                     outlineColor: 'var(--menu-primary, #f59e0b)'
                                 }}
@@ -253,9 +250,8 @@ export default function NewDishPage() {
                             </label>
                             <select
                                 {...register('categoryId')}
-                                className="w-full rounded-lg border p-3 bg-transparent transition-colors focus:ring-2 focus:ring-opacity-50"
+                                className="w-full rounded-lg border border-gray-600 p-3 bg-transparent transition-colors focus:outline-none focus:ring-0"
                                 style={{
-                                    borderColor: 'rgba(255,255,255,0.1)',
                                     color: 'var(--menu-text, #fff)',
                                     outlineColor: 'var(--menu-primary, #f59e0b)'
                                 }}
@@ -279,9 +275,8 @@ export default function NewDishPage() {
                             type="checkbox"
                             {...register('available')}
                             id="available"
-                            className="rounded bg-transparent focus:ring-offset-0 focus:ring-2"
+                            className="form-checkbox h-5 w-5 rounded border-gray-600 bg-transparent transition duration-150 ease-in-out focus:ring-0 focus:ring-offset-0"
                             style={{
-                                borderColor: 'rgba(255,255,255,0.3)',
                                 color: settings?.primaryColor || '#f59e0b',
                             }}
                         />

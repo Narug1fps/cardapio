@@ -110,12 +110,15 @@ export default function AdminReportsPage() {
         <div className="space-y-8">
             {/* Header */}
             <div>
-                <h1 className="text-3xl font-bold text-white">Relatórios</h1>
-                <p className="text-zinc-400 mt-1">Análise de vendas e pedidos</p>
+                <h1 className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>Relatórios</h1>
+                <p className="mt-1" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Análise de vendas e pedidos</p>
             </div>
 
             {/* Date Range Selector */}
-            <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+            <div
+                className="rounded-2xl p-6"
+                style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+            >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex flex-wrap gap-2">
                         {[
@@ -147,7 +150,8 @@ export default function AdminReportsPage() {
                                 type="date"
                                 value={dateRange.start}
                                 onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                                className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm"
+                                className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm"
+                                style={{ color: 'var(--menu-text)' }}
                             />
                         </div>
                         <span className="text-zinc-500">até</span>
@@ -155,7 +159,8 @@ export default function AdminReportsPage() {
                             type="date"
                             value={dateRange.end}
                             onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                            className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-white text-sm"
+                            className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm"
+                            style={{ color: 'var(--menu-text)' }}
                         />
                     </div>
                 </div>
@@ -164,11 +169,8 @@ export default function AdminReportsPage() {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div
-                    className="rounded-2xl border p-6"
-                    style={{
-                        background: `linear-gradient(135deg, ${settings?.secondaryColor || '#ea580c'}15, ${settings?.primaryColor || '#f59e0b'}05)`,
-                        borderColor: `${settings?.secondaryColor || '#ea580c'}33`
-                    }}
+                    className="rounded-2xl p-6"
+                    style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
                 >
                     <div className="flex items-center gap-3 mb-4">
                         <div
@@ -180,17 +182,14 @@ export default function AdminReportsPage() {
                                 style={{ color: settings?.secondaryColor || '#ea580c' }}
                             />
                         </div>
-                        <span className="text-zinc-400 text-sm">Faturamento Total</span>
+                        <span className="text-sm" style={{ color: 'var(--menu-text-secondary)' }}>Faturamento Total</span>
                     </div>
-                    <p className="text-3xl font-bold text-white">{formatPrice(totalRevenue)}</p>
+                    <p className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>{formatPrice(totalRevenue)}</p>
                 </div>
 
                 <div
-                    className="rounded-2xl border p-6"
-                    style={{
-                        background: `linear-gradient(135deg, ${settings?.primaryColor || '#f59e0b'}15, ${settings?.secondaryColor || '#ea580c'}05)`,
-                        borderColor: `${settings?.primaryColor || '#f59e0b'}33`
-                    }}
+                    className="rounded-2xl p-6"
+                    style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
                 >
                     <div className="flex items-center gap-3 mb-4">
                         <div
@@ -202,17 +201,14 @@ export default function AdminReportsPage() {
                                 style={{ color: settings?.primaryColor || '#f59e0b' }}
                             />
                         </div>
-                        <span className="text-zinc-400 text-sm">Total de Pedidos</span>
+                        <span className="text-sm" style={{ color: 'var(--menu-text-secondary)' }}>Total de Pedidos</span>
                     </div>
-                    <p className="text-3xl font-bold text-white">{totalOrders}</p>
+                    <p className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>{totalOrders}</p>
                 </div>
 
                 <div
-                    className="rounded-2xl border p-6"
-                    style={{
-                        background: `linear-gradient(135deg, ${settings?.primaryColor || '#f59e0b'}15, ${settings?.secondaryColor || '#ea580c'}15)`,
-                        borderColor: `${settings?.primaryColor || '#f59e0b'}33`
-                    }}
+                    className="rounded-2xl p-6"
+                    style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
                 >
                     <div className="flex items-center gap-3 mb-4">
                         <div
@@ -224,19 +220,19 @@ export default function AdminReportsPage() {
                                 style={{ color: settings?.primaryColor || '#f59e0b' }}
                             />
                         </div>
-                        <span className="text-zinc-400 text-sm">Ticket Médio</span>
+                        <span className="text-sm" style={{ color: 'var(--menu-text-secondary)' }}>Ticket Médio</span>
                     </div>
-                    <p className="text-3xl font-bold text-white">{formatPrice(avgOrderValue)}</p>
+                    <p className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>{formatPrice(avgOrderValue)}</p>
                 </div>
 
-                <div className="bg-gradient-to-br from-red-500/10 to-rose-500/10 rounded-2xl border border-red-500/20 p-6">
+                <div className="bg-gradient-to-br from-red-500/10 to-rose-500/10 rounded-2xl p-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="p-3 bg-red-500/20 rounded-xl">
                             <FiX className="w-6 h-6 text-red-400" />
                         </div>
-                        <span className="text-zinc-400 text-sm">Cancelamentos</span>
+                        <span className="text-sm" style={{ color: 'var(--menu-text-secondary)' }}>Cancelamentos</span>
                     </div>
-                    <p className="text-3xl font-bold text-white">{totalCancelled}</p>
+                    <p className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>{totalCancelled}</p>
                 </div>
             </div>
 
@@ -244,23 +240,26 @@ export default function AdminReportsPage() {
             {reports.length > 0 && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {bestDay && (
-                        <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                        <div
+                            className="rounded-2xl p-6"
+                            style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                        >
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-3 bg-emerald-500/20 rounded-xl">
                                     <FiTrendingUp className="w-6 h-6 text-emerald-400" />
                                 </div>
                                 <div>
-                                    <span className="text-zinc-400 text-sm block">Melhor Dia</span>
+                                    <span className="text-sm block" style={{ color: 'var(--menu-text-secondary)' }}>Melhor Dia</span>
                                     <span className="text-white font-medium">{formatDate(bestDay.reportDate)}</span>
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-zinc-500 text-sm">Faturamento</p>
+                                    <p className="text-sm" style={{ color: 'var(--menu-text-secondary)' }}>Faturamento</p>
                                     <p className="text-xl font-bold text-emerald-400">{formatPrice(bestDay.totalRevenue)}</p>
                                 </div>
                                 <div>
-                                    <p className="text-zinc-500 text-sm">Pedidos</p>
+                                    <p className="text-sm" style={{ color: 'var(--menu-text-secondary)' }}>Pedidos</p>
                                     <p className="text-xl font-bold text-white">{bestDay.totalOrders}</p>
                                 </div>
                             </div>
@@ -268,23 +267,26 @@ export default function AdminReportsPage() {
                     )}
 
                     {worstDay && reports.length > 1 && (
-                        <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
+                        <div
+                            className="rounded-2xl p-6"
+                            style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                        >
                             <div className="flex items-center gap-3 mb-4">
                                 <div className="p-3 bg-red-500/20 rounded-xl">
                                     <FiTrendingDown className="w-6 h-6 text-red-400" />
                                 </div>
                                 <div>
-                                    <span className="text-zinc-400 text-sm block">Pior Dia</span>
+                                    <span className="text-sm block" style={{ color: 'var(--menu-text-secondary)' }}>Pior Dia</span>
                                     <span className="text-white font-medium">{formatDate(worstDay.reportDate)}</span>
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <p className="text-zinc-500 text-sm">Faturamento</p>
+                                    <p className="text-sm" style={{ color: 'var(--menu-text-secondary)' }}>Faturamento</p>
                                     <p className="text-xl font-bold text-red-400">{formatPrice(worstDay.totalRevenue)}</p>
                                 </div>
                                 <div>
-                                    <p className="text-zinc-500 text-sm">Pedidos</p>
+                                    <p className="text-sm" style={{ color: 'var(--menu-text-secondary)' }}>Pedidos</p>
                                     <p className="text-xl font-bold text-white">{worstDay.totalOrders}</p>
                                 </div>
                             </div>
@@ -294,9 +296,12 @@ export default function AdminReportsPage() {
             )}
 
             {/* Daily Chart */}
-            <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6">
-                <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
-                    <FiBarChart2 className="w-5 h-5 text-amber-400" />
+            <div
+                className="rounded-2xl p-6"
+                style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+            >
+                <h2 className="text-xl font-semibold mb-6 flex items-center gap-2" style={{ color: 'var(--menu-text)' }}>
+                    <FiBarChart2 className="w-5 h-5 type-amber-400" style={{ color: settings?.primaryColor || '#f59e0b' }} />
                     Faturamento Diário
                 </h2>
 
@@ -350,8 +355,8 @@ export default function AdminReportsPage() {
             </div>
 
             {/* Daily Table */}
-            <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 overflow-hidden">
-                <div className="p-6 border-b border-zinc-800">
+            <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}>
+                <div className="p-6">
                     <h2 className="text-xl font-semibold text-white flex items-center gap-2">
                         <FiPieChart className="w-5 h-5 text-amber-400" />
                         Detalhamento por Dia
@@ -361,17 +366,17 @@ export default function AdminReportsPage() {
                 <div className="overflow-x-auto">
                     <table className="w-full">
                         <thead>
-                            <tr className="border-b border-zinc-800">
-                                <th className="text-left px-6 py-4 text-zinc-500 font-medium">Data</th>
-                                <th className="text-right px-6 py-4 text-zinc-500 font-medium">Pedidos</th>
-                                <th className="text-right px-6 py-4 text-zinc-500 font-medium">Faturamento</th>
-                                <th className="text-right px-6 py-4 text-zinc-500 font-medium">Ticket Médio</th>
-                                <th className="text-right px-6 py-4 text-zinc-500 font-medium">Cancelados</th>
+                            <tr>
+                                <th className="text-left px-6 py-4 font-medium" style={{ color: 'var(--menu-text-secondary)' }}>Data</th>
+                                <th className="text-right px-6 py-4 font-medium" style={{ color: 'var(--menu-text-secondary)' }}>Pedidos</th>
+                                <th className="text-right px-6 py-4 font-medium" style={{ color: 'var(--menu-text-secondary)' }}>Faturamento</th>
+                                <th className="text-right px-6 py-4 font-medium" style={{ color: 'var(--menu-text-secondary)' }}>Ticket Médio</th>
+                                <th className="text-right px-6 py-4 font-medium" style={{ color: 'var(--menu-text-secondary)' }}>Cancelados</th>
                             </tr>
                         </thead>
                         <tbody>
                             {reports.map(report => (
-                                <tr key={report.reportDate} className="border-b border-zinc-800/50 hover:bg-zinc-800/30">
+                                <tr key={report.reportDate} className="hover:bg-zinc-800/30">
                                     <td className="px-6 py-4 text-white font-medium">{formatDate(report.reportDate)}</td>
                                     <td className="px-6 py-4 text-right text-zinc-400">{report.totalOrders}</td>
                                     <td className="px-6 py-4 text-right text-amber-400 font-medium">{formatPrice(report.totalRevenue)}</td>

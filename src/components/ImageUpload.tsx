@@ -54,7 +54,7 @@ export function ImageUpload({ value, onChange, label, aspectRatio = 'square' }: 
 
     return (
         <div>
-            <label className="block text-sm font-medium text-zinc-400 mb-2">
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text-secondary)' }}>
                 {label}
             </label>
 
@@ -72,7 +72,7 @@ export function ImageUpload({ value, onChange, label, aspectRatio = 'square' }: 
                     <img
                         src={value}
                         alt="Preview"
-                        className={`w-full rounded-xl border border-zinc-700 object-cover ${aspectRatio === 'banner' ? 'h-32' : 'aspect-square'
+                        className={`w-full rounded-xl object-cover ${aspectRatio === 'banner' ? 'h-32' : 'aspect-square'
                             }`}
                     />
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
@@ -94,8 +94,9 @@ export function ImageUpload({ value, onChange, label, aspectRatio = 'square' }: 
                 <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className={`w-full border-2 border-dashed border-zinc-700 hover:border-zinc-500 rounded-xl flex flex-col items-center justify-center gap-2 text-zinc-500 hover:text-zinc-300 transition-all ${aspectRatio === 'banner' ? 'h-32' : 'aspect-square'
+                    className={`w-full bg-zinc-800/50 hover:bg-zinc-700/50 rounded-xl flex flex-col items-center justify-center gap-2 transition-all ${aspectRatio === 'banner' ? 'h-32' : 'aspect-square'
                         }`}
+                    style={{ color: 'var(--menu-text-secondary)' }}
                 >
                     {uploading ? (
                         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-amber-500"></div>

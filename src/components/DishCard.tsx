@@ -20,8 +20,16 @@ export function DishCard({ dish }: DishCardProps) {
     }
 
     return (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden  flex flex-col h-full">
-            <div className="relative h-48 w-full bg-gray-100">
+        <div
+            className="rounded-xl overflow-hidden flex flex-col h-full transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            style={{
+                backgroundColor: 'var(--card-bg, #ffffff)',
+                color: 'var(--card-text, #18181b)',
+                borderRadius: 'var(--card-radius, 0.75rem)',
+                border: '1px solid var(--card-border, rgba(245, 158, 11, 0.25))'
+            }}
+        >
+            <div className="relative h-32 md:h-48 w-full bg-gray-100">
                 {imageUrl ? (
                     <Image
                         src={imageUrl}
@@ -31,12 +39,12 @@ export function DishCard({ dish }: DishCardProps) {
                     />
                 ) : (
                     <div className="flex items-center justify-center h-full text-gray-300">
-                        <FaUtensils size={48} />
+                        <FaUtensils size={32} className="md:w-12 md:h-12" />
                     </div>
                 )}
 
                 {/* Availability Badge */}
-                <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${dish.available ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
+                <div className={`absolute top-2 right-2 md:top-3 md:right-3 px-2 py-1 rounded-full text-[10px] md:text-xs font-medium flex items-center gap-1 ${dish.available ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}>
                     {dish.available ? (
                         <>
                             <FiCheck className="w-3 h-3" />
@@ -52,15 +60,15 @@ export function DishCard({ dish }: DishCardProps) {
             </div>
 
             {/* Content */}
-            <div className="p-4">
-                <h3 className="text-lg font-semibold text-black mb-2 group-hover:text-amber-400 transition-colors">
+            <div className="p-3 md:p-4">
+                <h3 className="text-base md:text-lg font-semibold mb-1 md:mb-2 transition-colors">
                     {dish.name}
                 </h3>
-                <p className="text-zinc-400 text-sm mb-4 line-clamp-2">
+                <p className="opacity-70 text-xs md:text-sm mb-2 md:mb-4 line-clamp-2">
                     {dish.description}
                 </p>
                 <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
+                    <span className="text-lg md:text-xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">
                         {formatPrice(dish.price)}
                     </span>
                 </div>

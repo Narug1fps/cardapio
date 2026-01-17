@@ -114,8 +114,8 @@ export default function AdminDashboardPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Dashboard</h1>
-                    <p className="text-zinc-400 mt-1">Visão geral do restaurante</p>
+                    <h1 className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>Dashboard</h1>
+                    <p className="mt-1" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Visão geral do restaurante</p>
                 </div>
                 <button
                     onClick={fetchStats}
@@ -128,7 +128,7 @@ export default function AdminDashboardPage() {
 
             {/* Error Banner */}
             {error && (
-                <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 flex items-center gap-3">
+                <div className="bg-red-500/10 rounded-xl p-4 flex items-center gap-3">
                     <FiAlertCircle className="w-5 h-5 text-red-400" />
                     <span className="text-red-400">{error}</span>
                 </div>
@@ -137,10 +137,9 @@ export default function AdminDashboardPage() {
             {/* Stats Cards - Centralized */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div
-                    className="rounded-2xl border p-6"
+                    className="rounded-2xl p-6 shadow-sm"
                     style={{
-                        background: `linear-gradient(135deg, ${settings?.primaryColor}15, ${settings?.secondaryColor}05)`,
-                        borderColor: `${settings?.primaryColor}30`
+                        backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)'
                     }}
                 >
                     <div className="flex items-center justify-between mb-4">
@@ -148,17 +147,16 @@ export default function AdminDashboardPage() {
                             <FiShoppingBag className="w-6 h-6" style={{ color: settings?.primaryColor }} />
                         </div>
                     </div>
-                    <p className="text-zinc-400 text-sm mb-1">Pedidos Hoje</p>
-                    <p className="text-3xl font-bold text-white">
+                    <p className="text-sm mb-1" style={{ color: 'var(--menu-text-secondary)' }}>Pedidos Hoje</p>
+                    <p className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>
                         {loading ? '...' : stats?.todayOrders || 0}
                     </p>
                 </div>
 
                 <div
-                    className="rounded-2xl border p-6"
+                    className="rounded-2xl p-6 shadow-sm"
                     style={{
-                        background: `linear-gradient(135deg, ${settings?.secondaryColor}15, ${settings?.primaryColor}05)`,
-                        borderColor: `${settings?.secondaryColor}30`
+                        backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)'
                     }}
                 >
                     <div className="flex items-center justify-between mb-4">
@@ -166,17 +164,16 @@ export default function AdminDashboardPage() {
                             <FiDollarSign className="w-6 h-6" style={{ color: settings?.secondaryColor }} />
                         </div>
                     </div>
-                    <p className="text-zinc-400 text-sm mb-1">Faturamento Hoje</p>
-                    <p className="text-3xl font-bold text-white">
+                    <p className="text-sm mb-1" style={{ color: 'var(--menu-text-secondary)' }}>Faturamento Hoje</p>
+                    <p className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>
                         {loading ? '...' : formatPrice(stats?.todayRevenue || 0)}
                     </p>
                 </div>
 
                 <div
-                    className="rounded-2xl border p-6"
+                    className="rounded-2xl p-6 shadow-sm"
                     style={{
-                        background: `linear-gradient(135deg, ${settings?.primaryColor}15, ${settings?.secondaryColor}05)`,
-                        borderColor: `${settings?.primaryColor}30`
+                        backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)'
                     }}
                 >
                     <div className="flex items-center justify-between mb-4">
@@ -192,17 +189,16 @@ export default function AdminDashboardPage() {
                             </span>
                         )}
                     </div>
-                    <p className="text-zinc-400 text-sm mb-1">Pedidos Pendentes</p>
-                    <p className="text-3xl font-bold text-white">
+                    <p className="text-sm mb-1" style={{ color: 'var(--menu-text-secondary)' }}>Pedidos Pendentes</p>
+                    <p className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>
                         {loading ? '...' : stats?.pendingOrders || 0}
                     </p>
                 </div>
 
                 <div
-                    className="rounded-2xl border p-6"
+                    className="rounded-2xl p-6 shadow-sm"
                     style={{
-                        background: `linear-gradient(135deg, ${settings?.secondaryColor}15, ${settings?.primaryColor}05)`,
-                        borderColor: `${settings?.secondaryColor}30`
+                        backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)'
                     }}
                 >
                     <div className="flex items-center justify-between mb-4">
@@ -210,8 +206,8 @@ export default function AdminDashboardPage() {
                             <FiRefreshCw className="w-6 h-6" style={{ color: settings?.secondaryColor }} />
                         </div>
                     </div>
-                    <p className="text-zinc-400 text-sm mb-1">Em Preparação</p>
-                    <p className="text-3xl font-bold text-white">
+                    <p className="text-sm mb-1" style={{ color: 'var(--menu-text-secondary)' }}>Em Preparação</p>
+                    <p className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>
                         {loading ? '...' : stats?.preparingOrders || 0}
                     </p>
                 </div>
@@ -219,27 +215,35 @@ export default function AdminDashboardPage() {
 
             {/* Quick Actions Grid */}
             <div>
-                <h2 className="text-xl font-semibold text-white mb-6 text-center">Acesso Rápido</h2>
+                <h2 className="text-xl font-semibold mb-6 text-center" style={{ color: settings?.textColor || '#ffffff' }}>Acesso Rápido</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {quickActions.map((action) => (
                         <Link
                             key={action.href}
                             href={action.href}
-                            className="group relative bg-zinc-900/50 rounded-2xl border border-zinc-800 p-6 hover:border-zinc-700 transition-all duration-300 overflow-hidden"
+                            className="group relative rounded-2xl p-6 transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md"
+                            style={{
+                                backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)'
+                            }}
                         >
                             {/* Gradient Background on Hover */}
                             <div className={`absolute inset-0 bg-gradient-to-r ${action.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
 
                             <div className="relative flex items-start justify-between">
                                 <div className="flex items-start gap-4">
-                                    <div className={`p-3 bg-gradient-to-r ${action.color} rounded-xl shadow-lg`}>
+                                    <div
+                                        className="p-3 rounded-xl shadow-lg"
+                                        style={{
+                                            backgroundImage: `linear-gradient(to right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`
+                                        }}
+                                    >
                                         <action.icon className="w-6 h-6 text-white" />
                                     </div>
                                     <div>
-                                        <h3 className="font-semibold text-white group-hover:text-amber-400 transition-colors">
+                                        <h3 className="font-semibold group-hover:text-amber-400 transition-colors" style={{ color: settings?.textColor || '#ffffff' }}>
                                             {action.label}
                                         </h3>
-                                        <p className="text-zinc-500 text-sm mt-1">{action.description}</p>
+                                        <p className="text-sm mt-1" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>{action.description}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
@@ -248,7 +252,10 @@ export default function AdminDashboardPage() {
                                             {action.badge}
                                         </span>
                                     )}
-                                    <FiChevronRight className="w-5 h-5 text-zinc-600 group-hover:text-amber-400 group-hover:translate-x-1 transition-all" />
+                                    <FiChevronRight
+                                        className="w-5 h-5 transition-all group-hover:translate-x-1"
+                                        style={{ color: settings?.textColor || '#52525b', opacity: 0.5 }}
+                                    />
                                 </div>
                             </div>
                         </Link>
@@ -259,8 +266,11 @@ export default function AdminDashboardPage() {
             {/* Top Dishes - Centered */}
             {stats?.topDishes && stats.topDishes.length > 0 && (
                 <div className="max-w-3xl mx-auto w-full">
-                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-8">
-                        <h2 className="text-xl font-semibold text-white mb-6 text-center">🔥 Pratos Mais Pedidos Hoje</h2>
+                    <div
+                        className="rounded-2xl p-8"
+                        style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                    >
+                        <h2 className="text-xl font-semibold mb-6 text-center" style={{ color: settings?.textColor || '#ffffff' }}>🔥 Pratos Mais Pedidos Hoje</h2>
                         <ul className="space-y-4">
                             {stats.topDishes.map((dish, index) => (
                                 <li key={dish.name} className="flex items-center justify-between p-4 bg-zinc-800/50 rounded-xl hover:bg-zinc-800 transition-colors">
@@ -274,7 +284,7 @@ export default function AdminDashboardPage() {
                                         </span>
                                         <span className="text-white font-medium text-lg">{dish.name}</span>
                                     </div>
-                                    <span className="text-zinc-400 font-medium">{dish.count} pedidos</span>
+                                    <span className="font-medium" style={{ color: 'var(--menu-text-secondary)' }}>{dish.count} pedidos</span>
                                 </li>
                             ))}
                         </ul>

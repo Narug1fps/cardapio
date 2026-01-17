@@ -244,9 +244,9 @@ export default function AdminTablesPage() {
 
     const getStatusColor = (status?: string) => {
         switch (status) {
-            case 'occupied': return 'bg-red-500/20 text-red-400 border-red-500/30'
-            case 'reserved': return 'bg-amber-500/20 text-amber-400 border-amber-500/30'
-            default: return 'bg-green-500/20 text-green-400 border-green-500/30'
+            case 'occupied': return 'bg-red-500/20 text-red-400'
+            case 'reserved': return 'bg-amber-500/20 text-amber-400'
+            default: return 'bg-green-500/20 text-green-400'
         }
     }
 
@@ -266,13 +266,14 @@ export default function AdminTablesPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Gerenciar Mesas</h1>
-                    <p className="text-zinc-400 mt-1">Configure as mesas do seu restaurante</p>
+                    <h1 className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>Gerenciar Mesas</h1>
+                    <p className="mt-1" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Configure as mesas do seu restaurante</p>
                 </div>
                 <div className="flex gap-3">
                     <button
                         onClick={fetchTables}
-                        className="flex items-center gap-2 px-4 py-2 bg-zinc-800 rounded-lg text-zinc-400 hover:text-white transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-zinc-800 rounded-lg hover:text-white transition-colors"
+                        style={{ color: settings?.primaryColor || '#f59e0b' }}
                     >
                         <FiRefreshCw className="w-4 h-4" />
                         Atualizar
@@ -296,24 +297,24 @@ export default function AdminTablesPage() {
             {/* Create Table Form */}
             {isCreating && (
                 <div
-                    className="bg-zinc-900/50 rounded-2xl border p-6 animate-fade-in"
-                    style={{ borderColor: `${settings?.primaryColor}4D` }} // 30% opacity
+                    className="rounded-2xl p-6 animate-fade-in"
+                    style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
                 >
-                    <h2 className="text-lg font-semibold text-white mb-4">Nova Mesa</h2>
+                    <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--menu-text)' }}>Nova Mesa</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">
+                            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text-secondary)' }}>
                                 Número da Mesa
                             </label>
                             <input
                                 type="number"
                                 value={newTable.number}
                                 onChange={(e) => setNewTable(prev => ({ ...prev, number: parseInt(e.target.value) || 0 }))}
-                                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none focus:border-amber-500"
+                                className="w-full px-4 py-3 bg-zinc-800 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">
+                            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text-secondary)' }}>
                                 Nome/Identificação (Opcional)
                             </label>
                             <input
@@ -321,11 +322,11 @@ export default function AdminTablesPage() {
                                 value={newTable.name}
                                 onChange={(e) => setNewTable(prev => ({ ...prev, name: e.target.value }))}
                                 placeholder="Ex: Mesa VIP, Varanda..."
-                                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-amber-500"
+                                className="w-full px-4 py-3 bg-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">
+                            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text-secondary)' }}>
                                 Número de Lugares
                             </label>
                             <input
@@ -334,7 +335,7 @@ export default function AdminTablesPage() {
                                 onChange={(e) => setNewTable(prev => ({ ...prev, seats: parseInt(e.target.value) || 4 }))}
                                 min={1}
                                 max={20}
-                                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none focus:border-amber-500"
+                                className="w-full px-4 py-3 bg-zinc-800 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                             />
                         </div>
                     </div>
@@ -363,22 +364,22 @@ export default function AdminTablesPage() {
 
             {/* Edit Table Form */}
             {editingTable && (
-                <div className="bg-zinc-900/50 rounded-2xl border border-blue-500/30 p-6 animate-fade-in">
-                    <h2 className="text-lg font-semibold text-white mb-4">Editar Mesa {editingTable.number}</h2>
+                <div className="rounded-2xl p-6 animate-fade-in" style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}>
+                    <h2 className="text-lg font-semibold mb-4" style={{ color: 'var(--menu-text)' }}>Editar Mesa {editingTable.number}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">
+                            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text-secondary)' }}>
                                 Número da Mesa
                             </label>
                             <input
                                 type="number"
                                 value={editingTable.number}
                                 onChange={(e) => setEditingTable({ ...editingTable, number: parseInt(e.target.value) || 0 })}
-                                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
+                                className="w-full px-4 py-3 bg-zinc-800 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">
+                            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text-secondary)' }}>
                                 Nome/Identificação
                             </label>
                             <input
@@ -386,11 +387,11 @@ export default function AdminTablesPage() {
                                 value={editingTable.name || ''}
                                 onChange={(e) => setEditingTable({ ...editingTable, name: e.target.value })}
                                 placeholder="Ex: Mesa VIP..."
-                                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:border-blue-500"
+                                className="w-full px-4 py-3 bg-zinc-800 rounded-xl text-white placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-zinc-400 mb-2">
+                            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--menu-text-secondary)' }}>
                                 Lugares
                             </label>
                             <input
@@ -399,7 +400,7 @@ export default function AdminTablesPage() {
                                 onChange={(e) => setEditingTable({ ...editingTable, seats: parseInt(e.target.value) || 4 })}
                                 min={1}
                                 max={20}
-                                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
+                                className="w-full px-4 py-3 bg-zinc-800 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                             />
                         </div>
                         <div>
@@ -409,7 +410,7 @@ export default function AdminTablesPage() {
                             <select
                                 value={editingTable.status || 'available'}
                                 onChange={(e) => setEditingTable({ ...editingTable, status: e.target.value as any })}
-                                className="w-full px-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white focus:outline-none focus:border-blue-500"
+                                className="w-full px-4 py-3 bg-zinc-800 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                             >
                                 <option value="available">Livre</option>
                                 <option value="occupied">Ocupada</option>
@@ -445,38 +446,41 @@ export default function AdminTablesPage() {
                 {tables.map(table => (
                     <div
                         key={table.id}
-                        className={`bg-zinc-900/50 rounded-2xl border p-6 transition-all relative overflow-hidden ${table.isActive
-                            ? 'border-zinc-800 hover:border-zinc-700'
-                            : 'border-zinc-800 opacity-50 bg-zinc-950'
+                        className={`rounded-2xl p-6 transition-all relative overflow-hidden ${table.isActive
+                            ? 'hover:scale-[1.02]'
+                            : 'opacity-50'
                             }`}
+                        style={{
+                            backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)'
+                        }}
                     >
                         {!table.isActive && (
                             <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 pointer-events-none">
-                                <span className="bg-zinc-800 text-zinc-400 px-3 py-1 rounded-full text-sm font-bold border border-zinc-700">INATIVA</span>
+                                <span className="bg-zinc-800 text-zinc-400 px-3 py-1 rounded-full text-sm font-bold">INATIVA</span>
                             </div>
                         )}
 
                         <div className="flex items-start justify-between mb-4">
                             <div>
-                                <div className="text-3xl font-bold text-white">{table.number}</div>
+                                <div className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>{table.number}</div>
                                 {table.name && (
-                                    <p className="text-zinc-500 text-sm mt-1">{table.name}</p>
+                                    <p className="text-sm mt-1" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>{table.name}</p>
                                 )}
                             </div>
 
-                            <div className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusColor(table.status)}`}>
+                            <div className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusColor(table.status)}`}>
                                 {getStatusLabel(table.status)}
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 text-zinc-500 text-sm mb-6">
-                            <FiUsers className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-sm mb-6" style={{ color: settings?.textColor || '#71717a', opacity: 0.7 }}>
+                            <FiUsers className="w-4 h-4" style={{ color: settings?.primaryColor || '#f59e0b' }} />
                             <span>{table.seats} lugares</span>
                         </div>
 
                         {/* Bill Total and Finalize */}
                         {tableTotals[table.number] > 0 && (
-                            <div className="mb-6 p-4 bg-zinc-950/50 rounded-xl border border-zinc-800">
+                            <div className="mb-6 p-4 rounded-xl shadow-inner" style={{ backgroundColor: settings?.backgroundColor || '#09090b' }}>
                                 <p className="text-zinc-400 text-xs mb-1 uppercase tracking-wider font-bold">Total a Pagar</p>
                                 <div className="flex items-end justify-between">
                                     <span className="text-2xl font-bold text-white">{formatPrice(tableTotals[table.number])}</span>
@@ -499,20 +503,21 @@ export default function AdminTablesPage() {
                         <div className="flex gap-2">
                             <button
                                 onClick={() => setQrModalTable(table)}
-                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-zinc-800 text-zinc-400 rounded-lg hover:bg-zinc-700 hover:text-white transition-colors text-sm"
+                                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 hover:text-white transition-colors text-sm text-zinc-300"
                             >
                                 <FaQrcode className="w-4 h-4" />
                                 QR Code
                             </button>
                             <button
                                 onClick={() => setEditingTable(table)}
-                                className="p-2 bg-zinc-800 text-zinc-400 rounded-lg hover:bg-zinc-700 hover:text-white transition-colors"
+                                className="p-2 bg-zinc-800 rounded-lg hover:bg-zinc-700 hover:text-white transition-colors"
+                                style={{ color: '#d4d4d8' }}
                             >
                                 <FiEdit2 className="w-4 h-4" />
                             </button>
                             <button
                                 onClick={() => setDeleteConfirmation(table.id)}
-                                className="p-2 bg-zinc-800 text-zinc-400 rounded-lg hover:bg-red-500/20 hover:text-red-400 transition-colors"
+                                className="p-2 bg-zinc-800 rounded-lg hover:bg-red-500/20 text-red-500 hover:text-red-400 transition-colors"
                                 title="Excluir Mesa"
                             >
                                 <FiTrash2 className="w-4 h-4" />
@@ -525,9 +530,15 @@ export default function AdminTablesPage() {
             {/* Empty State */}
             {
                 tables.length === 0 && !isCreating && (
-                    <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-12 text-center">
-                        <FiUsers className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                        <p className="text-zinc-500 mb-4">Nenhuma mesa cadastrada</p>
+                    <div
+                        className="rounded-2xl p-12 text-center"
+                        style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                    >
+                        <FiUsers
+                            className="w-12 h-12 mx-auto mb-4"
+                            style={{ color: settings?.primaryColor || '#f59e0b', opacity: 0.4 }}
+                        />
+                        <p className="mb-4" style={{ color: settings?.textColor || '#71717a' }}>Nenhuma mesa cadastrada</p>
                         <button
                             onClick={() => {
                                 setNewTable({ number: 1, name: '', seats: 4 })
@@ -550,7 +561,7 @@ export default function AdminTablesPage() {
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                             onClick={() => setQrModalTable(null)}
                         />
-                        <div className="relative bg-zinc-900 rounded-2xl border border-zinc-800 p-6 max-w-md w-full animate-fade-in">
+                        <div className="relative bg-zinc-900 rounded-2xl p-6 max-w-md w-full animate-fade-in">
                             <button
                                 onClick={() => setQrModalTable(null)}
                                 className="absolute top-4 right-4 p-2 rounded-lg hover:bg-zinc-800 text-zinc-400"
@@ -558,7 +569,7 @@ export default function AdminTablesPage() {
                                 <FiX className="w-5 h-5" />
                             </button>
                             {/* ... QR Code Content ... */}
-                            <h2 className="text-xl font-bold text-white mb-2">QR Code - Mesa {qrModalTable.number}</h2>
+                            <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--menu-text)' }}>QR Code - Mesa {qrModalTable.number}</h2>
                             <div className="bg-white rounded-xl p-4 mb-4">
                                 <img
                                     src={generateQRCodeUrl(qrModalTable.number)}
@@ -591,13 +602,13 @@ export default function AdminTablesPage() {
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                             onClick={() => setDeleteConfirmation(null)}
                         />
-                        <div className="relative bg-zinc-900 rounded-2xl border border-red-500/30 p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-red-500/10">
+                        <div className="relative bg-zinc-900 rounded-2xl p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-red-500/10">
                             <div className="flex flex-col items-center text-center">
-                                <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mb-4">
+                                <div className="bg-red-500/10 rounded-xl p-4 flex items-center gap-3 justify-center mb-4">
                                     <FiAlertTriangle className="w-6 h-6 text-red-500" />
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-2">Excluir Mesa?</h3>
-                                <p className="text-zinc-400 mb-6">
+                                <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--menu-text)' }}>Excluir Mesa?</h3>
+                                <p className="mb-6" style={{ color: 'var(--menu-text-secondary)' }}>
                                     Tem certeza que deseja excluir esta mesa? Esta ação não pode ser desfeita e removerá o histórico associado.
                                 </p>
                                 <div className="flex gap-3 w-full">
@@ -627,14 +638,14 @@ export default function AdminTablesPage() {
                             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                             onClick={() => setFinalizeConfirmation(null)}
                         />
-                        <div className="relative bg-zinc-900 rounded-2xl border border-emerald-500/30 p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-emerald-500/10">
+                        <div className="relative bg-zinc-900 rounded-2xl p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-emerald-500/10">
                             <div className="flex flex-col items-center text-center">
                                 <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
                                     <FiDollarSign className="w-6 h-6 text-emerald-500" />
                                 </div>
-                                <h3 className="text-xl font-bold text-white mb-2">Finalizar Mesa {finalizeConfirmation}?</h3>
-                                <p className="text-zinc-400 mb-6">
-                                    Confirma o pagamento total de <strong className="text-white">{formatPrice(tableTotals[finalizeConfirmation] || 0)}</strong>? Esta ação limpará os pedidos da mesa.
+                                <h3 className="text-xl font-bold mb-2" style={{ color: 'var(--menu-text)' }}>Finalizar Mesa {finalizeConfirmation}?</h3>
+                                <p className="mb-6" style={{ color: 'var(--menu-text-secondary)' }}>
+                                    Confirma o pagamento total de <strong style={{ color: 'var(--menu-text)' }}>{formatPrice(tableTotals[finalizeConfirmation] || 0)}</strong>? Esta ação limpará os pedidos da mesa.
                                 </p>
                                 <div className="flex gap-3 w-full">
                                     <button

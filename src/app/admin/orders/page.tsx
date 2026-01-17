@@ -24,19 +24,19 @@ const statusLabels: Record<OrderStatus, string> = {
 }
 
 const statusColors: Record<OrderStatus, string> = {
-    pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    preparing: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-    ready: 'bg-green-500/20 text-green-400 border-green-500/30',
-    delivered: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-    cancelled: 'bg-red-500/20 text-red-400 border-red-500/30'
+    pending: 'bg-yellow-500/20 text-yellow-400',
+    preparing: 'bg-blue-500/20 text-blue-400',
+    ready: 'bg-green-500/20 text-green-400',
+    delivered: 'bg-emerald-500/20 text-emerald-400',
+    cancelled: 'bg-red-500/20 text-red-400'
 }
 
 const statusBgColors: Record<OrderStatus, string> = {
-    pending: 'border-l-yellow-500',
-    preparing: 'border-l-blue-500',
-    ready: 'border-l-green-500',
-    delivered: 'border-l-emerald-500',
-    cancelled: 'border-l-red-500'
+    pending: '',
+    preparing: '',
+    ready: '',
+    delivered: '',
+    cancelled: ''
 }
 
 import { useMenuSettings } from '@/components/MenuThemeProvider'
@@ -179,12 +179,13 @@ export default function AdminOrdersPage() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-white">Gerenciar Pedidos</h1>
-                    <p className="text-zinc-400 mt-1">Acompanhe e atualize o status dos pedidos</p>
+                    <h1 className="text-3xl font-bold" style={{ color: settings?.textColor || '#ffffff' }}>Gerenciar Pedidos</h1>
+                    <p className="mt-1" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Acompanhe e atualize o status dos pedidos</p>
                 </div>
                 <button
                     onClick={fetchOrders}
-                    className="flex items-center gap-2 px-4 py-2 bg-zinc-800 rounded-lg text-zinc-400 hover:text-white transition-colors"
+                    className="flex items-center gap-2 px-4 py-2 bg-zinc-800 rounded-lg transition-colors hover:text-white"
+                    style={{ color: settings?.primaryColor || '#f59e0b' }}
                 >
                     <FiRefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
                     Atualizar
@@ -193,7 +194,7 @@ export default function AdminOrdersPage() {
 
             {/* Pending Alert */}
             {pendingCount > 0 && (
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 flex items-center gap-3 animate-pulse">
+                <div className="bg-yellow-500/10 rounded-xl p-4 flex items-center gap-3 animate-pulse">
                     <FiAlertCircle className="w-6 h-6 text-yellow-400" />
                     <span className="text-yellow-400 font-medium">
                         {pendingCount} pedido(s) aguardando confirmação!
@@ -207,11 +208,11 @@ export default function AdminOrdersPage() {
                     <button
                         key={tab.value}
                         onClick={() => setFilter(tab.value)}
-                        className={`px-4 py-2 rounded-lg font-medium transition-all ${filter === tab.value
-                            ? 'text-white'
-                            : 'bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white'
-                            }`}
-                        style={filter === tab.value ? { backgroundColor: settings?.primaryColor || '#f59e0b' } : {}}
+                        className={`px-4 py-2 rounded-lg font-medium transition-all`}
+                        style={filter === tab.value
+                            ? { backgroundColor: settings?.primaryColor || '#f59e0b', color: '#ffffff' }
+                            : { backgroundColor: 'var(--card-bg)', color: 'var(--menu-text-secondary)' }
+                        }
                     >
                         {tab.label}
                         {tab.count > 0 && (
@@ -233,9 +234,15 @@ export default function AdminOrdersPage() {
                     ></div>
                 </div>
             ) : filteredOrders.length === 0 ? (
-                <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-12 text-center">
-                    <FiClock className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-                    <p className="text-zinc-500">Nenhum pedido encontrado</p>
+                <div
+                    className="rounded-2xl p-12 text-center"
+                    style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
+                >
+                    <FiClock
+                        className="w-12 h-12 mx-auto mb-4"
+                        style={{ color: settings?.primaryColor || '#f59e0b', opacity: 0.4 }}
+                    />
+                    <p style={{ color: settings?.textColor || '#71717a' }}>Nenhum pedido encontrado</p>
                 </div>
             ) : (
                 <div className="grid gap-4">
@@ -246,14 +253,13 @@ export default function AdminOrdersPage() {
                         return (
                             <div
                                 key={order.id}
-                                className={`rounded-2xl border overflow-hidden border-l-4 ${statusBgColors[order.status]}`}
+                                className={`rounded-2xl overflow-hidden ${statusBgColors[order.status]} shadow-sm`}
                                 style={{
-                                    backgroundColor: 'rgba(255,255,255,0.02)',
-                                    borderColor: 'rgba(255,255,255,0.1)'
+                                    backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)'
                                 }}
                             >
                                 {/* Order Header */}
-                                <div className="p-4 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+                                <div className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div className="flex items-center gap-4">
                                         <div className="rounded-xl p-3" style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
                                             <FiMapPin className="w-5 h-5" style={{ color: 'var(--menu-text, #fff)', opacity: 0.6 }} />
@@ -261,7 +267,7 @@ export default function AdminOrdersPage() {
                                         <div>
                                             <div className="flex items-center gap-3">
                                                 <span className="text-xl font-bold" style={{ color: 'var(--menu-text, #fff)' }}>Mesa {order.tableNumber}</span>
-                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm border ${statusColors[order.status]}`}>
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm ${statusColors[order.status]}`}>
                                                     {statusLabels[order.status]}
                                                 </span>
                                             </div>
@@ -301,7 +307,7 @@ export default function AdminOrdersPage() {
                                     </ul>
 
                                     {order.notes && (
-                                        <div className="mt-4 p-3 rounded-lg border border-white/10" style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}>
+                                        <div className="mt-4 p-3 rounded-lg" style={{ backgroundColor: 'rgba(255,255,255,0.03)' }}>
                                             <p className="text-sm" style={{ color: 'var(--menu-text, #fff)', opacity: 0.8 }}>
                                                 <strong className="opacity-100">Observações:</strong> {order.notes}
                                             </p>
@@ -311,7 +317,7 @@ export default function AdminOrdersPage() {
 
                                 {/* Order Actions */}
                                 {(order.status !== 'delivered' && order.status !== 'cancelled') && (
-                                    <div className="p-4 flex flex-wrap gap-3" style={{ backgroundColor: 'rgba(0,0,0,0.2)' }}>
+                                    <div className="p-4 flex flex-wrap gap-3" style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}>
                                         {nextAction && (
                                             <button
                                                 onClick={() => updateOrderStatus(order.id, nextAction.nextStatus)}
@@ -330,7 +336,7 @@ export default function AdminOrdersPage() {
                                         <button
                                             onClick={() => updateOrderStatus(order.id, 'cancelled')}
                                             disabled={isUpdating}
-                                            className="flex items-center gap-2 px-4 py-2 bg-red-600/20 text-red-400 border border-red-600/30 rounded-lg hover:bg-red-600/30 transition-colors disabled:opacity-50"
+                                            className="flex items-center gap-2 px-4 py-2 bg-red-600/20 text-red-400 rounded-lg hover:bg-red-600/30 transition-colors disabled:opacity-50"
                                         >
                                             <FiX className="w-4 h-4" />
                                             Cancelar

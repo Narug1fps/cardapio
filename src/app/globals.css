@@ -33,7 +33,8 @@
 }
 
 body {
-  @apply antialiased bg-zinc-950 text-white min-h-screen;
+  @apply antialiased text-zinc-100 min-h-screen transition-colors duration-300;
+  background-color: var(--menu-bg, #09090b);
 }
 
 /* Custom scrollbar */
@@ -43,15 +44,15 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-zinc-900;
+  @apply bg-zinc-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-zinc-700 rounded-full;
+  @apply bg-zinc-300 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-zinc-600;
+  @apply bg-zinc-400;
 }
 
 /* Custom animations */
@@ -94,8 +95,8 @@ input[type="password"],
 input[type="number"],
 textarea,
 select {
-  @apply bg-zinc-900 border-zinc-700 text-white placeholder-zinc-500 rounded-lg;
-  border-color: #3f3f46;
+  @apply bg-white border-zinc-200 text-zinc-900 placeholder-zinc-400 rounded-lg;
+  border-color: #e4e4e7;
 }
 
 input[type="text"]:focus,
@@ -110,6 +111,11 @@ select:focus {
 }
 
 /* Button base */
+button,
+.btn {
+  @apply cursor-pointer;
+}
+
 .btn {
   @apply inline-flex items-center justify-center gap-2 px-4 py-2 font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
 }
@@ -126,7 +132,7 @@ select:focus {
 }
 
 .btn-secondary {
-  @apply bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700;
+  @apply bg-white text-zinc-700 hover:bg-zinc-50 border border-zinc-200;
 }
 
 .btn-danger {
@@ -135,7 +141,11 @@ select:focus {
 
 /* Card styles */
 .card {
-  @apply bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6;
+  background-color: var(--card-bg, #ffffff);
+  color: var(--card-text, #18181b);
+  border-radius: var(--card-radius, 1rem);
+  padding: var(--card-padding, 1.5rem);
+  border: 1px solid var(--card-border, rgba(245, 158, 11, 0.25));
 }
 
 /* Line clamp */

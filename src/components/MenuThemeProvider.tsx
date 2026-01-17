@@ -1,41 +1,86 @@
 'use client'
 
-import { useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react'
 import type { MenuSettings } from '@/types/orders'
+
+interface MenuThemeContextType {
+    settings: MenuSettings | null
+    loading: boolean
+    refreshSettings: () => Promise<void>
+    updateLocalSettings: (newSettings: Partial<MenuSettings>) => void
+}
+
+const MenuThemeContext = createContext<MenuThemeContextType | undefined>(undefined)
 
 interface MenuThemeProviderProps {
     children: ReactNode
     initialSettings?: MenuSettings | null
 }
 
-// Named export do componente (para compatibilidade com quem usa { MenuThemeProvider })
+const SETTINGS_STORAGE_KEY = 'menu-settings-cache'
+
 export function MenuThemeProvider({ children, initialSettings }: MenuThemeProviderProps) {
+    // Initialize with initialSettings (server-side) or null.
+    // We cannot read localStorage during initialization because it causes Hydration Mismatch.
     const [settings, setSettings] = useState<MenuSettings | null>(initialSettings || null)
 
-    useEffect(() => {
-        // Se não vieram configurações iniciais, busca no cliente
-        if (!settings) {
-            fetchSettings()
-        }
-    }, []) // Executa apenas na montagem
+    // Mount state to prevent hydration mismatch
+    const [mounted, setMounted] = useState(false)
 
-    const fetchSettings = async () => {
+    // Initial load from localStorage
+    useEffect(() => {
+        setMounted(true)
+        if (typeof window !== 'undefined') {
+            const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
+            if (cached) {
+                try {
+                    setSettings(JSON.parse(cached))
+                } catch (e) {
+                    console.error('Error parsing settings cache', e)
+                }
+            }
+        }
+    }, [])
+
+    const [loading, setLoading] = useState(!settings)
+
+    const fetchSettings = useCallback(async () => {
         try {
             const response = await fetch('/api/settings')
             if (response.ok) {
                 const data = await response.json()
                 setSettings(data)
+                // Salva no cache
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(data))
+                }
             }
         } catch (error) {
             console.error('Error fetching settings:', error)
+        } finally {
+            setLoading(false)
         }
-    }
+    }, [])
+
+    useEffect(() => {
+        fetchSettings()
+    }, [fetchSettings])
 
     useEffect(() => {
         if (settings?.fontFamily) {
             loadGoogleFont(settings.fontFamily)
         }
     }, [settings?.fontFamily])
+
+    const updateLocalSettings = useCallback((newSettings: Partial<MenuSettings>) => {
+        setSettings(prev => {
+            const updated = prev ? { ...prev, ...newSettings } : newSettings as MenuSettings
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated))
+            }
+            return updated
+        })
+    }, [])
 
     const loadGoogleFont = (fontName: string) => {
         const existingLink = document.querySelector(`link[data-font="${fontName}"]`)
@@ -66,52 +111,59 @@ export function MenuThemeProvider({ children, initialSettings }: MenuThemeProvid
         }
     }
 
+    const getImageHeight = (size: string) => {
+        switch (size) {
+            case 'compact': return '80px'
+            case 'large': return '128px'
+            default: return '112px'
+        }
+    }
+
     const themeStyles = settings ? {
         '--menu-primary': settings.primaryColor,
         '--menu-secondary': settings.secondaryColor,
         '--menu-accent': settings.accentColor,
         '--menu-bg': settings.backgroundColor,
         '--menu-text': settings.textColor,
+        '--menu-text-secondary': `color-mix(in srgb, ${settings.textColor} 60%, transparent)`,
         '--menu-font': settings.fontFamily,
-        '--card-bg': settings.cardBackgroundColor || '#18181b',
-        '--card-text': settings.cardTextColor || '#ffffff',
+        '--card-bg': settings.cardBackgroundColor || '#ffffff',
+        '--card-text': settings.cardTextColor || '#18181b',
+        '--card-text-secondary': `color-mix(in srgb, ${settings.cardTextColor || '#18181b'} 60%, transparent)`,
+        '--card-border': `color-mix(in srgb, ${settings.primaryColor} 25%, transparent)`,
         '--card-radius': getBorderRadius(settings.cardBorderRadius),
         '--card-padding': getPadding(settings.cardSize),
+        '--card-image-height': getImageHeight(settings.cardSize),
         fontFamily: `${settings.fontFamily}, sans-serif`,
+        color: settings.textColor,
     } as React.CSSProperties : {}
 
     return (
-        <div style={themeStyles}>
-            {children}
-        </div>
+        <MenuThemeContext.Provider value={{ settings, loading, refreshSettings: fetchSettings, updateLocalSettings }}>
+            <div style={themeStyles}>
+                <style jsx global>{`
+                    body {
+                        background-color: ${settings?.backgroundColor || '#09090b'} !important;
+                        color: ${settings?.textColor || '#ffffff'};
+                    }
+                    ::selection {
+                        background-color: ${settings?.primaryColor || '#f59e0b'};
+                        color: #ffffff;
+                    }
+                `}</style>
+                {children}
+            </div>
+        </MenuThemeContext.Provider>
     )
 }
 
-// Hook para usar as configurações (Recriado)
+// Hook agora usa o Contexto
 export function useMenuSettings() {
-    const [settings, setSettings] = useState<MenuSettings | null>(null)
-    const [loading, setLoading] = useState(true)
-
-    useEffect(() => {
-        fetchSettings()
-    }, [])
-
-    const fetchSettings = async () => {
-        try {
-            const response = await fetch('/api/settings')
-            if (response.ok) {
-                const data = await response.json()
-                setSettings(data)
-            }
-        } catch (error) {
-            console.error('Error fetching settings:', error)
-        } finally {
-            setLoading(false)
-        }
+    const context = useContext(MenuThemeContext)
+    if (context === undefined) {
+        throw new Error('useMenuSettings must be used within a MenuThemeProvider')
     }
-
-    return { settings, loading }
+    return context
 }
 
-// Default export também apontando para o componente (para o layout.tsx)
 export default MenuThemeProvider

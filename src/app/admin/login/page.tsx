@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { FiMail, FiLock, FiLogIn, FiLoader } from 'react-icons/fi'
 import { supabase } from '@/lib/supabase'
+import { useMenuSettings } from '@/components/MenuThemeProvider'
 
 const loginSchema = z.object({
     email: z.string().email('Email inválido'),
@@ -20,6 +21,7 @@ export default function LoginPage() {
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [checkingAuth, setCheckingAuth] = useState(true)
+    const { settings } = useMenuSettings()
 
     useEffect(() => {
         // Check if already logged in
@@ -70,24 +72,30 @@ export default function LoginPage() {
 
     if (checkingAuth) {
         return (
-            <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500"></div>
+            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: settings?.backgroundColor || '#09090b' }}>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2" style={{ borderColor: settings?.primaryColor || '#f59e0b' }}></div>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4">
+        <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: settings?.backgroundColor || '#09090b' }}>
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-amber-500/30">
+                    <div
+                        className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"
+                        style={{
+                            background: `linear-gradient(to bottom right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`,
+                            boxShadow: `0 10px 15px -3px ${settings?.primaryColor || '#f59e0b'}40`
+                        }}
+                    >
                         <span className="text-white font-bold text-2xl">🍽️</span>
                     </div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Admin Login</h1>
-                    <p className="text-zinc-400">Entre para gerenciar o cardápio</p>
+                    <h1 className="text-3xl font-bold mb-2" style={{ color: settings?.textColor || '#ffffff' }}>Admin Login</h1>
+                    <p style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Entre para gerenciar o cardápio</p>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 space-y-6">
+                <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl p-6 space-y-6 border border-gray-700" style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}>
                     {error && (
                         <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
                             {error}
@@ -95,15 +103,18 @@ export default function LoginPage() {
                     )}
 
                     <div>
-                        <label className="block text-sm font-medium text-zinc-300 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: settings?.textColor || '#d4d4d8' }}>
                             Email
                         </label>
                         <div className="relative">
-                            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-5 h-5" />
+                            <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: settings?.textColor || '#71717a', opacity: 0.5 }} />
                             <input
                                 type="email"
                                 {...register('email')}
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500"
+                                className="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none bg-black/10 border border-gray-600 transition-colors"
+                                style={{
+                                    color: settings?.textColor || '#ffffff',
+                                }}
                                 placeholder="admin@restaurante.com"
                             />
                         </div>
@@ -113,15 +124,18 @@ export default function LoginPage() {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-zinc-300 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: settings?.textColor || '#d4d4d8' }}>
                             Senha
                         </label>
                         <div className="relative">
-                            <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 w-5 h-5" />
+                            <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: settings?.textColor || '#71717a', opacity: 0.5 }} />
                             <input
                                 type="password"
                                 {...register('password')}
-                                className="w-full pl-10 pr-4 py-3 bg-zinc-800 border border-zinc-700 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-amber-500"
+                                className="w-full pl-10 pr-4 py-3 rounded-xl focus:outline-none bg-black/10 border border-gray-600 transition-colors"
+                                style={{
+                                    color: settings?.textColor || '#ffffff',
+                                }}
                                 placeholder="••••••••"
                             />
                         </div>
@@ -133,7 +147,11 @@ export default function LoginPage() {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-semibold rounded-xl hover:from-amber-600 hover:to-orange-700 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 text-white font-semibold rounded-xl transition-all disabled:opacity-50"
+                        style={{
+                            background: `linear-gradient(to right, ${settings?.primaryColor || '#f59e0b'}, ${settings?.secondaryColor || '#ea580c'})`,
+                            boxShadow: `0 4px 6px -1px ${settings?.primaryColor || '#f59e0b'}40`
+                        }}
                     >
                         {isLoading ? (
                             <>
@@ -149,8 +167,8 @@ export default function LoginPage() {
                     </button>
                 </form>
 
-                <p className="text-center text-zinc-500 text-sm mt-6">
-                    <a href="/" className="text-amber-400 hover:text-amber-300">
+                <p className="text-center text-sm mt-6">
+                    <a href="/" className="hover:opacity-80 transition-opacity" style={{ color: settings?.primaryColor || '#fbbf24' }}>
                         ← Voltar ao cardápio
                     </a>
                 </p>

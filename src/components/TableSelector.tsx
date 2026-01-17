@@ -84,10 +84,13 @@ export function TableSelector({
                     >
                         <FiMapPin className="w-10 h-10 text-white" />
                     </div>
-                    <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                    <h1
+                        className="text-4xl md:text-5xl font-bold mb-4"
+                        style={{ color: primaryColor }}
+                    >
                         Selecione sua Mesa
                     </h1>
-                    <p className="text-zinc-400 text-lg max-w-md mx-auto">
+                    <p className="text-zinc-500 text-lg max-w-md mx-auto">
                         Escolha a mesa onde você está sentado para iniciar seu pedido
                     </p>
                 </div>

@@ -39,42 +39,29 @@ export function DishCardOrder({ dish, showPrices = true, showImages = true }: Di
         success(`${quantity}x ${dish.name} adicionado!`)
     }
 
+    // Card inativo/indisponível
     if (!dish.available) {
         return (
-            <div
-                className="overflow-hidden flex flex-col h-full opacity-60 relative"
-                style={{
-                    backgroundColor: 'var(--card-bg, #18181b)',
-                    color: 'var(--card-text, #ffffff)',
-                    borderRadius: 'var(--card-radius, 1rem)'
-                }}
-            >
-                <div className="relative h-48 w-full bg-black/20">
+            <div className="flex flex-col h-full rounded-2xl bg-white shadow-sm opacity-60 relative overflow-hidden">
+                <div className="relative h-32 md:h-40 w-full bg-[#3F3E43] shrink-0">
                     {showImages && imageUrl ? (
-                        <Image
-                            src={imageUrl}
-                            alt={dish.name}
-                            fill
-                            className="object-cover grayscale"
-                        />
+                        <Image src={imageUrl} alt={dish.name} fill className="object-cover grayscale" />
                     ) : (
-                        <div className="flex items-center justify-center h-full opacity-20">
-                            <FaUtensils size={48} />
+                        <div className="flex items-center justify-center h-full text-white/20">
+                            <FiPlus className="rotate-45 w-8 h-8" />
                         </div>
                     )}
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                        <span className="bg-red-500/90 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-                            <FiX className="w-4 h-4" />
-                            Indisponível
-                        </span>
+                    <div className="absolute inset-0 bg-white/10 flex items-center justify-center z-10">
+                        <span className="bg-zinc-800 text-white px-3 py-1 rounded-full text-xs font-medium">Indisponível</span>
                     </div>
                 </div>
-                <div className="p-4" style={{ padding: 'var(--card-padding, 1rem)' }}>
-                    <h3 className="text-lg font-semibold opacity-60 mb-2">{dish.name}</h3>
-                    <p className="opacity-50 text-sm mb-4 line-clamp-2">{dish.description}</p>
-                    {showPrices && (
-                        <span className="text-xl font-bold opacity-60">{formatPrice(dish.price)}</span>
-                    )}
+                <div className="p-3 md:p-4 flex flex-col flex-1">
+                    <h3 className="font-serif font-semibold text-black text-sm md:text-base leading-tight mb-2 line-clamp-2">
+                        {dish.name}
+                    </h3>
+                    <p className="font-serif text-[#666] text-sm mt-auto">
+                        {showPrices ? formatPrice(dish.price) : '-'}
+                    </p>
                 </div>
             </div>
         )
@@ -82,116 +69,100 @@ export function DishCardOrder({ dish, showPrices = true, showImages = true }: Di
 
     return (
         <div
-            className="overflow-hidden flex flex-col h-full group hover:shadow-xl transition-all duration-300"
+            className="flex flex-col h-full rounded-2xl bg-white shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden relative group"
             style={{
-                backgroundColor: 'var(--card-bg, #18181b)',
-                color: 'var(--card-text, #ffffff)',
-                borderRadius: 'var(--card-radius, 1rem)',
-                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                backgroundColor: 'var(--card-bg, #ffffff)',
+                borderRadius: 'var(--card-radius, 1rem)'
             }}
         >
             {showImages && (
-                <div className="relative h-48 w-full bg-black/10 overflow-hidden">
-                    {imageUrl ? (
-                        <Image
-                            src={imageUrl}
-                            alt={dish.name}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                    ) : (
-                        <div className="flex items-center justify-center h-full opacity-10">
-                            <FaUtensils size={48} />
-                        </div>
-                    )}
+                <div className="relative w-full shrink-0 h-36 md:h-48">
+                    <div className="absolute inset-0 h-full w-full">
+                        {imageUrl ? (
+                            <Image
+                                src={imageUrl}
+                                alt={dish.name}
+                                fill
+                                className="object-cover transition-transform duration-500 hover:scale-105"
+                            />
+                        ) : (
+                            <div
+                                className="flex items-center justify-center h-full w-full"
+                                style={{ backgroundColor: '#3F3E43' }}
+                            >
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                    <polyline points="21 15 16 10 5 21"></polyline>
+                                </svg>
+                            </div>
+                        )}
+                    </div>
 
-                    {/* Quantity in cart badge */}
                     {quantityInCart > 0 && (
-                        <div
-                            className="absolute top-3 left-3 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg z-10"
-                            style={{ backgroundColor: 'var(--menu-primary, #f59e0b)' }}
-                        >
+                        <div className="absolute top-2 left-2 bg-black text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-md z-10">
                             {quantityInCart} no pedido
                         </div>
                     )}
                 </div>
             )}
 
-            {/* Content */}
-            <div className="flex-1 flex flex-col" style={{ padding: 'var(--card-padding, 1rem)' }}>
-                <div className="flex justify-between items-start gap-2 mb-2">
-                    <h3 className="text-lg font-semibold leading-tight">
-                        {dish.name}
-                    </h3>
-                    {!showImages && quantityInCart > 0 && (
-                        <div
-                            className="shrink-0 text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
-                            style={{ backgroundColor: 'var(--menu-primary, #f59e0b)' }}
-                        >
-                            {quantityInCart}
-                        </div>
-                    )}
-                </div>
+            {/* Content Body */}
+            <div className="flex-1 flex flex-col p-3 md:p-4 justify-between bg-white">
 
-                <p className="opacity-70 text-sm mb-4 line-clamp-2 flex-1">
+                {/* Title */}
+                <h3
+                    className="font-serif font-medium text-black text-sm md:text-base leading-snug mb-2 line-clamp-2"
+                    style={{ color: 'var(--card-text, #000000)' }}
+                >
+                    {dish.name}
+                </h3>
+
+                {/* Description - REINSERIDA */}
+                <p
+                    className="text-xs text-gray-500 line-clamp-2 mb-4 leading-relaxed"
+                    style={{ color: 'var(--card-text-secondary, #666666)' }}
+                >
                     {dish.description}
                 </p>
 
-                <div className="flex items-center justify-between gap-4 mt-auto">
+                {/* Bottom Section: Price left, Button right */}
+                <div className="flex items-end justify-between mt-auto">
                     {showPrices && (
-                        <span
-                            className="text-xl font-bold"
-                            style={{ color: 'var(--menu-primary, #f59e0b)' }}
-                        >
+                        <span className="font-serif text-[#666] text-sm md:text-base mb-1">
                             {formatPrice(dish.price)}
                         </span>
                     )}
 
-                    {/* Add Button / Quantity Selector */}
                     {isAdding ? (
-                        <div className="flex items-center gap-2 ml-auto animate-in fade-in slide-in-from-right-4 duration-200">
-                            <div className="flex items-center gap-1 bg-white/10 rounded-lg p-1">
-                                <button
-                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                    className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-md transition-colors"
-                                >
-                                    -
-                                </button>
-                                <span className="w-6 text-center font-medium">{quantity}</span>
-                                <button
-                                    onClick={() => setQuantity(quantity + 1)}
-                                    className="w-8 h-8 flex items-center justify-center hover:bg-white/10 rounded-md transition-colors"
-                                >
-                                    +
-                                </button>
-                            </div>
+                        <div className="flex items-center bg-black rounded-lg p-0.5 gap-1 animate-in fade-in zoom-in duration-200">
                             <button
-                                onClick={handleAddToCart}
-                                className="p-2 text-white rounded-lg transition-colors shadow-lg"
-                                style={{ backgroundColor: 'var(--menu-primary, #f59e0b)' }}
+                                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                className="w-6 h-6 flex items-center justify-center text-white hover:text-gray-300 font-bold"
                             >
-                                <FiCheck className="w-5 h-5" />
+                                -
+                            </button>
+                            <span className="text-white text-xs font-bold w-4 text-center">{quantity}</span>
+                            <button
+                                onClick={() => setQuantity(quantity + 1)}
+                                className="w-6 h-6 flex items-center justify-center text-white hover:text-gray-300 font-bold"
+                            >
+                                +
                             </button>
                             <button
-                                onClick={() => {
-                                    setIsAdding(false)
-                                    setQuantity(1)
-                                }}
-                                className="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-colors"
+                                onClick={handleAddToCart}
+                                className="w-6 h-6 flex items-center justify-center bg-white/20 rounded text-white hover:bg-white/30 ml-0.5"
                             >
-                                <FiX className="w-5 h-5" />
+                                <FiCheck size={12} />
                             </button>
                         </div>
                     ) : (
                         <button
                             onClick={() => setIsAdding(true)}
-                            className="ml-auto flex items-center gap-2 px-4 py-2 text-white rounded-lg transition-all shadow-md hover:shadow-lg transform hover:scale-105"
-                            style={{
-                                background: 'linear-gradient(to right, var(--menu-primary, #f59e0b), var(--menu-secondary, #ea580c))'
-                            }}
+                            className="bg-black hover:bg-zinc-800 text-white w-8 h-8 rounded-lg flex items-center justify-center transition-colors shadow-sm"
+                            aria-label="Adicionar"
                         >
-                            <FiPlus className="w-4 h-4" />
-                            <span className="font-medium">Adicionar</span>
+                            <FiPlus size={16} />
                         </button>
                     )}
                 </div>

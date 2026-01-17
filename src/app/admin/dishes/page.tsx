@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { FiPlus, FiEdit2, FiTrash2, FiAlertTriangle } from 'react-icons/fi'
-import { FaSpinner } from 'react-icons/fa'
+
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/components/Toast'
 import type { Dish, Category } from '@/types/menu'
+import { useMenuSettings } from '@/components/MenuThemeProvider'
 
 export default function DishesListPage() {
+    const { settings } = useMenuSettings()
     const router = useRouter()
     const { user, loading } = useAuth()
     const { success, error } = useToast()
@@ -101,8 +103,11 @@ export default function DishesListPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-64">
-                <FaSpinner className="w-8 h-8 animate-spin" style={{ color: 'var(--menu-primary, #f59e0b)' }} />
+            <div className="flex items-center justify-center py-20">
+                <div
+                    className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2"
+                    style={{ borderColor: 'var(--menu-primary, #f59e0b)' }}
+                ></div>
             </div>
         )
     }
@@ -113,7 +118,7 @@ export default function DishesListPage() {
 
     return (
         <div className="w-full">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center justify-between mb-8 border-b border-gray-700 pb-8">
                 <div>
                     <h1 className="text-3xl font-bold mb-2" style={{ color: 'var(--menu-text, #fff)' }}>Pratos</h1>
                     <p style={{ color: 'var(--menu-text, #fff)', opacity: 0.6 }}>Gerencie os pratos do cardápio</p>
@@ -128,13 +133,21 @@ export default function DishesListPage() {
                 </Link>
             </div>
 
-            <div className="w-full rounded-2xl border overflow-hidden" style={{ borderColor: 'rgba(255,255,255,0.05)', backgroundColor: 'transparent' }}>
+            <div
+                className="w-full rounded-2xl overflow-hidden "
+                style={{
+                    backgroundColor: 'transparent'
+                }}
+            >
                 {loadingData ? (
-                    <div className="flex items-center justify-center py-12">
-                        <FaSpinner className="w-6 h-6 animate-spin" style={{ color: 'var(--menu-primary, #f59e0b)' }} />
+                    <div className="flex items-center justify-center py-12 ">
+                        <div
+                            className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2"
+                            style={{ borderColor: 'var(--menu-primary, #f59e0b)' }}
+                        ></div>
                     </div>
                 ) : dishes.length === 0 ? (
-                    <div className="text-center py-12">
+                    <div className="text-center py-12 ">
                         <p className="mb-4" style={{ color: 'var(--menu-text, #fff)', opacity: 0.6 }}>Nenhum prato cadastrado</p>
                         <Link
                             href="/admin/dishes/new"
@@ -149,7 +162,7 @@ export default function DishesListPage() {
                     <div className="overflow-x-auto">
                         <table className="w-full">
                             <thead>
-                                <tr className="border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
+                                <tr>
                                     <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--menu-text, #fff)', opacity: 0.6 }}>Nome</th>
                                     <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--menu-text, #fff)', opacity: 0.6 }}>Categoria</th>
                                     <th className="text-left py-3 px-4 font-medium" style={{ color: 'var(--menu-text, #fff)', opacity: 0.6 }}>Preço</th>
@@ -161,8 +174,7 @@ export default function DishesListPage() {
                                 {dishes.map(dish => {
                                     const category = categories.find(c => c.$id === dish.categoryId)
                                     return (
-                                        <tr key={dish.$id} className="border-b transition-colors"
-                                            style={{ borderColor: 'rgba(255,255,255,0.05)' }}
+                                        <tr key={dish.$id} className="transition-colors hover:bg-white/5 border border-gray-700 p-8"
                                         >
                                             <td className="py-3 px-4">
                                                 <div>
@@ -188,13 +200,13 @@ export default function DishesListPage() {
                                                     <Link
                                                         href={`/admin/dishes/${dish.$id}/edit`}
                                                         className="p-2 rounded-lg transition-colors hover:bg-white/5"
-                                                        style={{ color: 'var(--menu-text, #fff)', opacity: 0.7 }}
+                                                        style={{ color: settings?.primaryColor || '#f59e0b' }}
                                                     >
                                                         <FiEdit2 className="w-4 h-4" />
                                                     </Link>
                                                     <button
                                                         onClick={() => setDeleteConfirmation(dish.$id)}
-                                                        className="p-2 rounded-lg hover:bg-red-500/20 text-red-400 transition-colors"
+                                                        className="p-2 rounded-lg hover:bg-red-500/20 text-red-500 hover:text-red-400 transition-colors"
                                                     >
                                                         <FiTrash2 className="w-4 h-4" />
                                                     </button>
@@ -217,7 +229,7 @@ export default function DishesListPage() {
                         onClick={() => setDeleteConfirmation(null)}
                     />
                     <div
-                        className="relative rounded-2xl border border-red-500/30 p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-red-500/10"
+                        className="relative rounded-2xl p-6 max-w-sm w-full animate-fade-in shadow-2xl shadow-red-500/10"
                         style={{ backgroundColor: 'var(--menu-bg, #09090b)' }}
                     >
                         <div className="flex flex-col items-center text-center">

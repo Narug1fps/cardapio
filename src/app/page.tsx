@@ -35,14 +35,19 @@ function HomeContent() {
 
   if (settingsLoading || checkingTable) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="text-center">
-          <div
-            className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 mx-auto mb-4"
-            style={{ borderColor: settings?.primaryColor || '#f59e0b' }}
-          ></div>
-          <p className="text-zinc-400">Carregando...</p>
+      <div className="min-h-screen flex items-center justify-center flex-col gap-4" style={{ backgroundColor: settings?.backgroundColor || '#09090b' }}>
+        <div className="relative">
+          <div className="w-16 h-16 rounded-full border-4 border-t-transparent animate-spin"
+            style={{
+              borderColor: `${settings?.primaryColor || '#f59e0b'}33`,
+              borderTopColor: settings?.primaryColor || '#f59e0b'
+            }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="text-2xl">🍽️</span>
+          </div>
         </div>
+        <p className="font-medium animate-pulse" style={{ color: settings?.textColor || '#ffffff', opacity: 0.7 }}>Carregando...</p>
       </div>
     )
   }
@@ -109,11 +114,14 @@ function HomeContent() {
 
 function LoadingFallback() {
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-amber-500 mx-auto mb-4"></div>
-        <p className="text-zinc-400">Carregando...</p>
+    <div className="min-h-screen bg-[#09090b] flex items-center justify-center flex-col gap-4">
+      <div className="relative">
+        <div className="w-16 h-16 rounded-full border-4 border-t-transparent animate-spin border-amber-900/20 border-t-amber-500" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl">🍽️</span>
+        </div>
       </div>
+      <p className="text-zinc-400 font-medium animate-pulse">Carregando...</p>
     </div>
   )
 }

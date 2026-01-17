@@ -154,8 +154,8 @@ export default function CategoriesPage() {
         <div className="w-full">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-white mb-2">Categorias</h1>
-                    <p className="text-zinc-400">Gerencie as categorias do cardápio</p>
+                    <h1 className="text-3xl font-bold mb-2" style={{ color: settings?.textColor || '#ffffff' }}>Categorias</h1>
+                    <p style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Gerencie as categorias do cardápio</p>
                 </div>
                 <button onClick={openNewForm} className="btn btn-primary">
                     <FiPlus className="w-4 h-4" />
@@ -165,8 +165,13 @@ export default function CategoriesPage() {
 
             {/* Form Modal */}
             {showForm && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-                    <div className="card w-full max-w-md animate-fade-in">
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50">
+                    <div
+                        className="card w-full max-w-md animate-fade-in border border-gray-700 p-6 rounded-2xl"
+                        style={{
+                            backgroundColor: settings?.cardBackgroundColor || '#18181b'
+                        }}
+                    >
                         <div className="flex items-center justify-between mb-6">
                             <h2 className="text-xl font-bold text-white">
                                 {editingId ? 'Editar Categoria' : 'Nova Categoria'}
@@ -187,7 +192,7 @@ export default function CategoriesPage() {
                                 <input
                                     type="text"
                                     {...register('name')}
-                                    className="w-full"
+                                    className="w-full rounded-lg border border-gray-600 p-3 bg-transparent text-white transition-colors focus:outline-none focus:ring-0"
                                     placeholder="Ex: Entradas"
                                 />
                                 {errors.name && (
@@ -202,7 +207,7 @@ export default function CategoriesPage() {
                                 <textarea
                                     {...register('description')}
                                     rows={2}
-                                    className="w-full"
+                                    className="w-full rounded-lg border border-gray-600 p-3 bg-transparent text-white transition-colors focus:outline-none focus:ring-0"
                                     placeholder="Descrição opcional"
                                 />
                             </div>
@@ -231,7 +236,12 @@ export default function CategoriesPage() {
             )}
 
             {/* Categories List */}
-            <div className="card w-full">
+            <div
+                className="card w-full"
+                style={{
+                    backgroundColor: settings?.cardBackgroundColor || '#09090b'
+                }}
+            >
                 {loadingData ? (
                     <div className="flex items-center justify-center py-12">
                         <FaSpinner
@@ -241,7 +251,7 @@ export default function CategoriesPage() {
                     </div>
                 ) : categories.length === 0 ? (
                     <div className="text-center py-12">
-                        <p className="text-zinc-400 mb-4">Nenhuma categoria cadastrada</p>
+                        <p className="mb-4" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Nenhuma categoria cadastrada</p>
                         <button onClick={openNewForm} className="btn btn-primary">
                             <FiPlus className="w-4 h-4" />
                             Adicionar Primeira Categoria
@@ -252,7 +262,11 @@ export default function CategoriesPage() {
                         {categories.map((category, index) => (
                             <div
                                 key={category.$id}
-                                className="flex items-center justify-between p-4 rounded-lg bg-zinc-800/50 hover:bg-zinc-800 transition-colors"
+                                className="flex items-center justify-between p-4 rounded-lg transition-colors"
+                                style={{
+                                    backgroundColor: settings?.backgroundColor ? `${settings.backgroundColor}80` : 'rgba(39, 39, 42, 0.5)',
+                                    color: settings?.textColor || '#ffffff'
+                                }}
                             >
                                 <div className="flex items-center gap-4">
                                     <span
@@ -265,22 +279,23 @@ export default function CategoriesPage() {
                                         {index + 1}
                                     </span>
                                     <div>
-                                        <h3 className="text-white font-medium">{category.name}</h3>
+                                        <h3 className="font-medium" style={{ color: settings?.textColor || '#ffffff' }}>{category.name}</h3>
                                         {category.description && (
-                                            <p className="text-zinc-400 text-sm">{category.description}</p>
+                                            <p className="text-sm" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>{category.description}</p>
                                         )}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => openEditForm(category)}
-                                        className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors"
+                                        className="p-2 rounded-lg transition-colors hover:bg-white/5"
+                                        style={{ color: settings?.primaryColor || '#f59e0b' }}
                                     >
                                         <FiEdit2 className="w-4 h-4" />
                                     </button>
                                     <button
                                         onClick={() => handleDelete(category.$id)}
-                                        className="p-2 rounded-lg text-zinc-400 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                                        className="p-2 rounded-lg transition-colors hover:bg-red-500/10 text-red-500 hover:text-red-400"
                                     >
                                         <FiTrash2 className="w-4 h-4" />
                                     </button>

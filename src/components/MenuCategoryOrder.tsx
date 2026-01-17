@@ -25,7 +25,10 @@ export function MenuCategoryOrder({
     return (
         <section className="mb-12">
             <div className="mb-6">
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                <h2
+                    className="text-2xl md:text-3xl font-bold mb-2"
+                    style={{ color: 'var(--menu-text, #ffffff)' }}
+                >
                     {category.name}
                 </h2>
                 {category.description && (
@@ -39,7 +42,7 @@ export function MenuCategoryOrder({
                 />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
                 {categoryDishes.map(dish => (
                     <DishCardOrder
                         key={dish.$id}

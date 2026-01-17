@@ -125,8 +125,8 @@ export default function AdminCallsPage() {
         <div className="w-full">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                        <FiBell className={`w-8 h-8 ${calls.length > 0 ? 'text-red-500 animate-pulse' : 'text-zinc-600'}`} />
+                    <h1 className="text-3xl font-bold flex items-center gap-3" style={{ color: settings?.textColor || '#ffffff' }}>
+                        <FiBell className={`w-8 h-8 ${calls.length > 0 ? 'text-red-500 animate-pulse' : ''}`} style={calls.length === 0 ? { color: settings?.textColor || '#ffffff', opacity: 0.7 } : {}} />
                         Chamados de Mesa
                         {calls.length > 0 && (
                             <span className="bg-red-500 text-white text-base font-bold px-3 py-1 rounded-full">
@@ -134,7 +134,7 @@ export default function AdminCallsPage() {
                             </span>
                         )}
                     </h1>
-                    <p className="text-zinc-400 mt-1">Gerencie as solicitações dos clientes em tempo real</p>
+                    <p className="mt-1" style={{ color: settings?.textColor || '#a1a1aa', opacity: 0.6 }}>Gerencie as solicitações dos clientes em tempo real</p>
                 </div>
                 <button
                     onClick={fetchCalls}
@@ -145,11 +145,11 @@ export default function AdminCallsPage() {
             </div>
 
             {calls.length === 0 ? (
-                <div className="bg-zinc-900/50 rounded-2xl border border-zinc-800 p-12 flex flex-col items-center justify-center text-center max-w-2xl mx-auto">
+                <div className="rounded-2xl p-12 flex flex-col items-center justify-center text-center max-w-2xl mx-auto" style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}>
                     <div className="p-6 bg-zinc-800/50 rounded-full mb-6">
-                        <FiBell className="w-12 h-12 text-zinc-600" />
+                        <FiBell className="w-12 h-12" style={{ color: settings?.textColor || '#52525b' }} />
                     </div>
-                    <h2 className="text-xl font-semibold text-white mb-2">Sem chamados pendentes</h2>
+                    <h2 className="text-xl font-semibold mb-2" style={{ color: settings?.textColor || '#ffffff' }}>Sem chamados pendentes</h2>
                     <p className="text-zinc-500">Tudo tranquilo! Todos os clientes foram atendidos.</p>
                 </div>
             ) : (
@@ -157,22 +157,20 @@ export default function AdminCallsPage() {
                     {calls.map((call) => (
                         <div
                             key={call.id}
-                            className={`bg-zinc-900/50 rounded-2xl p-6 border transition-all group flex flex-col ${call.status === 'acknowledged'
+                            className={`rounded-2xl p-6 transition-all group flex flex-col ${call.status === 'acknowledged'
                                 ? 'shadow-[0_0_15px_-3px_rgba(245,158,11,0.1)]'
-                                : 'border-zinc-800 hover:border-red-500/30'
+                                : ''
                                 }`}
-                            style={call.status === 'acknowledged' ? { borderColor: `${settings?.primaryColor}4D` } : {}}
+                            style={{ backgroundColor: settings?.cardBackgroundColor || 'rgba(24, 24, 27, 0.5)' }}
                         >
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-3">
                                     <div
-                                        className="px-4 py-2 rounded-xl border flex flex-col items-center"
+                                        className="px-4 py-2 rounded-xl flex flex-col items-center"
                                         style={call.status === 'acknowledged' ? {
                                             backgroundColor: `${settings?.primaryColor}1A`,
-                                            borderColor: `${settings?.primaryColor}4D`
                                         } : {
                                             backgroundColor: '#27272a', // zinc-800
-                                            borderColor: '#3f3f46' // zinc-700
                                         }}
                                     >
                                         <span
@@ -197,12 +195,24 @@ export default function AdminCallsPage() {
                                         >
                                             {getCallTypeLabel(call.type)}
                                         </span>
-                                        <div className="flex items-center gap-2 text-zinc-400 text-sm">
-                                            <FiClock className="w-4 h-4" />
-                                            {formatTime(call.createdAt)}
+                                        <div className="flex items-center gap-2 mt-2">
+                                            <FiClock className="w-4 h-4" style={{ color: settings?.primaryColor || '#f59e0b', opacity: 0.8 }} />
+                                            <span className="text-sm" style={{ color: settings?.textColor || '#71717a', opacity: 0.6 }}>
+                                                {new Date(call.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
+                                {call.status !== 'completed' && (
+                                    <button
+                                        onClick={() => handleUpdateStatus(call.id, 'completed', call.tableNumber)}
+                                        className="p-3 bg-zinc-800 rounded-xl transition-all hover:scale-110"
+                                        style={{ color: settings?.primaryColor || '#4ade80' }}
+                                        title="Concluir atendimento"
+                                    >
+                                        <FiCheck className="w-6 h-6" />
+                                    </button>
+                                )}
                             </div>
 
                             <div className="flex-1">
